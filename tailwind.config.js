@@ -12,7 +12,8 @@ module.exports = {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/**/*.{js,ts,jsx,tsx,mdx}", 
+    "./components/subframe/**/*.{tsx,ts,js,jsx}",
   ],
   theme: {
     extend: {
@@ -87,4 +88,5 @@ module.exports = {
   future: {
     hoverOnlyWhenSupported: true,
   },
+  presets: [require("./components/subframe/tailwind.config.js")]
 }
