@@ -33,3 +33,5 @@ yarn-error.log*
 /playwright/.cache/
 
 /.npm-only-allow
+# subframe
+.subframe/access-token
