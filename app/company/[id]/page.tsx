@@ -6,54 +6,387 @@ import { Badge } from "@/subframe/components/Badge";
 import { VerticalStepper } from "@/subframe/components/VerticalStepper";
 import * as SubframeCore from "@subframe/core";
 import { CustomTreeView } from "@/subframe/components/CustomTreeView";
+import { notFound } from "next/navigation";
+
+
 import { IconButton } from "@/subframe/components/IconButton";
 import { Avatar } from "@/subframe/components/Avatar";
 import { Button } from "@/subframe/components/Button";
+import { Label } from "@subframe/core/dist/cjs/components/radix/context-menu";
+import { get } from "http";
+import InvestorsList from "components/InvestorList/InvestorList";
 
-function CompanyDetails() {
+type Score = {
+  metric: string;
+  score: number | undefined;
+  category: string | undefined;
+  orderId: number | undefined;
+}
+type CompanyScore = {
+  overall: Score | undefined;
+  team: Score | undefined;
+  growth: Score | undefined;
+  investors: Score | undefined;
+  mandateFit: Score | undefined;
+  subscores: Score[] | undefined;
+}
+
+type Investor = {
+  name: string;
+  logoUrl?: string | undefined;
+  websiteUrl?: string | undefined;
+  description?: string | undefined;
+  rank?: number | undefined;
+  relevance?: number | undefined;
+}
+
+type FundingRound = {
+  round: string;
+  amount?: number;
+  date?: string;
+  leads: Investor[] | undefined;
+  followers: Investor[] | undefined;
+}
+
+type DataPoint = {
+  label: string | undefined;
+  value: number | undefined;
+  date: string | undefined;
+}
+
+type Growth = {
+  name: string;
+  unit: string | undefined;
+  data: DataPoint[] | undefined;
+}
+
+type CoreDetails = {
+  id: string;
+  name: string;
+  description: string | undefined;
+  foundingDate: string | undefined;
+  lastRoundDate: string | undefined;
+  lastRound: string | undefined;
+  lastRoundAmount: number | undefined;
+  totalRaised: number | undefined;
+  tvl: number | undefined;
+  headcount: number | undefined;
+  headcountGrowth: number | undefined;
+  mau: number | undefined;
+  mauGrowth: number | undefined;
+}
+
+type Links = {
+  websiteUrl: string | undefined;
+  logoUrl: string | undefined;
+  crunchbaseUrl?: string;
+  linkedinUrl?: string;
+  pitchbookUrl?: string;
+  affinityUrl?: string;
+}
+
+type Company = {
+  id: string;
+  name: string;
+  description: string | undefined;
+  links: Links | undefined;
+  categories: string[] | undefined;
+  categoryGroups: string[] | undefined;
+  businessType: string | undefined;
+  details: CoreDetails | undefined;
+  score: CompanyScore | undefined;
+  fundingHistory: FundingRound[] | undefined;
+  growthMeasures: Growth[] | undefined;
+};
+
+type CompanyTearSheet = {
+  id: string;
+  name: string;
+  description: string | undefined;
+  websiteUrl: string | undefined;
+  logoUrl: string | undefined;
+  categories: string[] | undefined;
+  categoryGroups: string[] | undefined;
+  businessType: string | undefined;
+  crunchbaseUrl: string | undefined;
+  linkedinUrl: string | undefined;
+  pitchbookUrl: string | undefined;
+  affinityUrl: string | undefined;
+  foundingDate: string | undefined;
+  lastRoundDate: string | undefined;
+  lastRound: string | undefined;
+  lastRoundAmount: number | undefined;
+  totalRaised: number | undefined;
+  tvl: number | undefined;
+  headcount: number | undefined;
+  headcountGrowth: number | undefined;
+  mau: number | undefined;
+  mauGrowth: number | undefined;
+  overallScore: number | undefined;
+  teamScore: number | undefined;
+  growthScore: number | undefined;
+  investorsScore: number | undefined;
+  mandateFitScore: number | undefined;
+}
+
+const findCompanyById = (id: string): Company | null => {
+  return (parseInt(id) % 2) == 0 ? null : {
+    id,
+    name: "Ethena Labs",
+    description: "Ethena provides derivative infrastructure in order to transform Ethereum into the first crypto-native yield bearing stablecoin.",
+    links: {
+      logoUrl: "https://res.cloudinary.com/subframe/image/upload/v1725459945/uploads/3896/wf18my0jclzl62ajsuts.webp",
+      websiteUrl: "https://ethena.com",
+      crunchbaseUrl: "https://www.crunchbase.com/organization/ethena-b5a5",
+    },
+    categories: ["Blockchain", "Cryptocurrency"],
+    categoryGroups: [],
+    businessType: "Basis Trading", //Note: This should be from DefiLlama and is not actually the category groups
+    details: {
+      id,
+      name: "Ethena Labs",
+      description: "Ethena provides derivative infrastructure in order to transform Ethereum into the first crypto-native yield bearing stablecoin.",
+      foundingDate: '2020-01-01',
+      lastRoundDate: '2023-01-01',
+      lastRound: "Seed",
+      lastRoundAmount: 20_500_000,
+      totalRaised: 20_500_000,
+      tvl: 2_700_000_000,
+      headcount: 14,
+      headcountGrowth: .4,
+      mau: 326200,
+      mauGrowth: -.11,
+    },
+    score: {
+      overall: {
+        metric: "Overall",
+        score: 92,
+        category: "Overall",
+        orderId: 1,
+      },
+      team: {
+        metric: "Team",
+        score: 90,
+        category: "Team",
+        orderId: 2,
+      },
+      growth: {
+        metric: "Growth",
+        score: 80,
+        category: "Growth",
+        orderId: 3,
+      },
+      investors: {
+        metric: "Investors",
+        score: 95,
+        category: "Investors",
+        orderId: 4,
+      },
+      mandateFit: {
+        metric: "Mandate Fit",
+        score: undefined,
+        category: "Mandate Fit",
+        orderId: 5,
+      },
+      subscores: [
+
+      ]
+
+    },
+    fundingHistory: [{
+      round: "Seed",
+      amount: 20_500_000,
+      date: "2023-01-01",
+      leads: [{
+        name: "Dragonfly",
+        logoUrl: "https://res.cloudinary.com/subframe/image/upload/v1725459945/uploads/3896/wf18my0jclzl62ajsuts.webp",
+        websiteUrl: "https://ethena.com",
+        rank: 2
+      }, {
+        name: "BH Digital"
+      }
+      ],
+      followers: [
+        { name: "Franklin Templeton", rank: 1 },
+        { name: "Wintermute", rank: 2 },
+        { name: "OKX" },
+        { name: "Arthur Hayes" },
+        { name: "Bybit" },
+        { name: "Maelstrom" },
+        { name: "Deribit" },
+        { name: "Gemini" },
+        { name: "GSR" },
+        { name: "BitMEX" },
+        { name: "Binance Labs" },
+        { name: "Avon Ventures" },
+        { name: "philip morris" },
+        { name: "Hashed" },
+        { name: "Galaxy Digital" }
+      ]
+    }],
+    growthMeasures: undefined,
+  }
+};
+
+const toTearsheet = (company: Company): CompanyTearSheet => {
+  return {
+    id: company.id,
+    name: company.name,
+    description: company.description,
+    websiteUrl: company?.links?.websiteUrl,
+    logoUrl: company?.links?.logoUrl,
+    categories: company.categories,
+    categoryGroups: company.categoryGroups,
+    businessType: company.businessType,
+    crunchbaseUrl: company.links?.crunchbaseUrl,
+    linkedinUrl: company.links?.linkedinUrl,
+    pitchbookUrl: company.links?.pitchbookUrl,
+    affinityUrl: company.links?.affinityUrl,
+    foundingDate: company.details?.foundingDate,
+    lastRoundDate: company?.details?.lastRoundDate,
+    lastRound: company?.details?.lastRound,
+    lastRoundAmount: company?.details?.lastRoundAmount,
+    totalRaised: company?.details?.totalRaised,
+    tvl: company.details?.tvl,
+    headcount: company.details?.headcount,
+    headcountGrowth: company.details?.headcountGrowth,
+    mau: company.details?.mau,
+    mauGrowth: company.details?.mauGrowth,
+    overallScore: company.score?.overall?.score,
+    teamScore: company.score?.team?.score,
+    growthScore: company.score?.growth?.score,
+    investorsScore: company.score?.investors?.score,
+    mandateFitScore: company.score?.mandateFit?.score,
+  }
+}
+
+const getBadge = (label: string, score: number | undefined) => {
+  if (!score) {
+    return <Badge>{label}</Badge>
+  }
+
+  const variant = score > 90 ? 'success' : score > 80 ? 'neutral' : 'warning';
+
+  return <Badge variant={variant}>{`${label}: ${score}`}</Badge>
+}
+
+const formatNumber = (amount: number | undefined) => {
+  if (!amount) {
+    return 'N/A'
+  }
+
+  const suffixes = ["", "k", "m", "b", "t"]; // k = thousand, m = million, etc.
+  const tier = Math.floor(Math.log10(Math.abs(amount)) / 3); // Determine the tier (thousands, millions, etc.)
+
+  if (tier === 0) {
+    return `$${amount}`; // No suffix for values below 1,000
+  }
+
+  const scaled = amount / Math.pow(1000, tier); // Scale the number to the tier
+  const suffix = suffixes[tier]; // Get the appropriate suffix
+
+  return `${scaled.toFixed(1)}${suffix}`; // Format to 1 decimal place
+}
+
+const formatPercentage = (amount: number | undefined) => {
+  if (!amount) {
+    return 'N/A'
+  }
+  return `${amount * 100}%`
+}
+
+
+const getPercentageSpan = (amount: number | undefined) => {
+  if (!amount) {
+    return <span className="text-body font-body text-neutral-400">N/A</span>
+  }
+  if (amount > 0) {
+    return <span className="text-body font-body text-success-700">{formatPercentage(amount)}</span>
+  }
+
+  return <span className="text-body font-body text-error-700">{formatPercentage(amount)}</span>
+}
+
+function CompanyDetails({ params }: { params: { id: string } }) {
+  const company = findCompanyById(params.id);
+
+  if (!company) {
+    notFound();
+  }
+  const companyDetails = toTearsheet(company);
+
   return (
     <DefaultPageLayout>
       <div className="flex h-full w-full flex-col items-start gap-4 bg-neutral-50 px-6 py-12 overflow-auto">
         <div className="flex w-full min-w-[320px] flex-col items-start gap-6 rounded-md border border-solid border-neutral-border bg-default-background px-6 py-6 shadow-sm mobile:w-full mobile:grow mobile:shrink-0 mobile:basis-0">
           <div className="flex w-full items-center justify-between">
             <div className="flex items-center gap-2">
-              <img
-                className="max-h-[40px] flex-none"
-                src="https://res.cloudinary.com/subframe/image/upload/v1725459945/uploads/3896/wf18my0jclzl62ajsuts.webp"
-              />
+              <a href={companyDetails.websiteUrl} target="_blank">
+                <img
+                  className="max-h-[40px] flex-none"
+                  src={companyDetails.logoUrl || './images/ethena.png'}
+                />
+              </a>
               <span className="text-heading-2 font-heading-2 text-default-font">
-                Ethena Labs
+                {companyDetails.name}
               </span>
+
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="success">92</Badge>
-              <img
-                className="max-h-[40px] flex-none"
-                src="https://res.cloudinary.com/subframe/image/upload/v1725473386/uploads/3896/icp6lu3j5pslb3zh27ik.webp"
-              />
-              <img
-                className="max-h-[40px] flex-none"
-                src="https://res.cloudinary.com/subframe/image/upload/v1725473397/uploads/3896/wmrrytylvu5nvalilhaq.webp"
-              />
-              <img
-                className="max-h-[40px] flex-none"
-                src="https://res.cloudinary.com/subframe/image/upload/v1725473427/uploads/3896/g7mpfbdn0lgtxx4xwvsx.webp"
-              />
+              {companyDetails?.crunchbaseUrl ? (
+                <a href={companyDetails.crunchbaseUrl} target="_blank">
+                  <img
+                    className="max-h-[40px] flex-none"
+                    src="/images/crunchbase.png"
+                  />
+                </a>) : (
+                <img
+                  className="max-h-[40px] flex-none"
+                  src="/images/crunchbase_gray.png"
+                />
+              )}
+              {companyDetails?.pitchbookUrl ? (
+                <a href={companyDetails.pitchbookUrl} target="_blank">
+                  <img
+                    className="max-h-[40px] flex-none"
+                    src="/images/pitchbook.png"
+                  />
+                </a>) : (
+                <img
+                  className="max-h-[40px] flex-none"
+                  src="/images/pitchbook_gray.png"
+                />
+              )}
+
+              {companyDetails?.affinityUrl ? (
+                <a href={companyDetails.affinityUrl} target="_blank">
+                  <img
+                    className="max-h-[40px] flex-none"
+                    src="/images/affinity.png"
+                  />
+                </a>) : (
+                <img
+                  className="max-h-[40px] flex-none"
+                  src="/images/affinity_gray.png"
+                />
+              )}
             </div>
           </div>
           <div className="flex w-full items-center justify-between">
             <div className="flex items-start gap-2 px-1 py-1">
-              <Badge>Blockchain</Badge>
-              <Badge>Cryptocurrency</Badge>
-              <Badge variant="neutral">Basis Trading</Badge>
+              {companyDetails?.categories?.map((category) => (
+                <Badge key={category}>{category}</Badge>
+              ))}
+              {companyDetails?.businessType && <Badge key={companyDetails?.businessType} variant="neutral">{companyDetails?.businessType}</Badge>}
             </div>
             <VerticalStepper />
             <div className="flex items-start gap-2 px-1 py-1 float-right">
-              <Badge variant="success">Overall: 92</Badge>
-              <Badge variant="success">Team: 90</Badge>
-              <Badge variant="success">Investor: 95</Badge>
-              <Badge variant="neutral">Growth: 80</Badge>
-              <Badge>Unrated</Badge>
+              {getBadge('Overall', companyDetails?.overallScore)}
+              {getBadge('Team', companyDetails?.teamScore)}
+              {getBadge('Investors', companyDetails?.investorsScore)}
+              {getBadge('Growth', companyDetails?.growthScore)}
+              {getBadge('Fit', companyDetails?.mandateFitScore)}
             </div>
           </div>
           <div className="flex h-px w-full flex-none flex-col items-center gap-2 bg-neutral-200" />
@@ -73,7 +406,7 @@ function CompanyDetails() {
                 </span>
               </div>
               <span className="text-body font-body text-default-font">
-                Jan 2023
+                {companyDetails?.foundingDate}
               </span>
             </div>
             <div className="flex grow shrink-0 basis-0 flex-col items-end gap-2 px-1 py-1">
@@ -95,7 +428,7 @@ function CompanyDetails() {
                 </span>
               </div>
               <span className="text-body font-body text-default-font">
-                $20.5M
+                ${formatNumber(companyDetails?.totalRaised)}
               </span>
             </div>
             <div className="flex grow shrink-0 basis-0 flex-col items-end gap-2 px-1 py-1">
@@ -109,14 +442,14 @@ function CompanyDetails() {
                 </span>
               </div>
               <span className="text-body font-body text-default-font">
-                $2.7B
+                ${formatNumber(companyDetails?.tvl)}
               </span>
             </div>
             <div className="flex grow shrink-0 basis-0 flex-col items-end gap-2 px-1 py-1">
               <span className="text-body font-body text-default-font">
                 Headcount
               </span>
-              <span className="text-body font-body text-default-font">14</span>
+              <span className="text-body font-body text-default-font">{companyDetails?.headcount}</span>
             </div>
             <div className="flex grow shrink-0 basis-0 flex-col items-end gap-2 px-1 py-1">
               <div className="flex items-center gap-2">
@@ -128,7 +461,7 @@ function CompanyDetails() {
                   Headcount
                 </span>
               </div>
-              <span className="text-body font-body text-success-700">40%</span>
+              {getPercentageSpan(companyDetails?.headcountGrowth)}
             </div>
             <div className="flex grow shrink-0 basis-0 flex-col items-end gap-2 px-1 py-1">
               <div className="flex items-center gap-2">
@@ -141,7 +474,7 @@ function CompanyDetails() {
                 </span>
               </div>
               <span className="text-body font-body text-default-font">
-                326.2K
+                {formatNumber(companyDetails?.mau)}
               </span>
             </div>
             <div className="flex grow shrink-0 basis-0 flex-col items-end gap-2 px-1 py-1">
@@ -154,63 +487,45 @@ function CompanyDetails() {
                   MAU
                 </span>
               </div>
-              <span className="text-body font-body text-error-700">-11%</span>
+              {getPercentageSpan(companyDetails?.mauGrowth)}
             </div>
           </div>
           <div className="flex h-px w-full flex-none flex-col items-center gap-2 bg-neutral-200" />
           <div className="flex w-full grow shrink-0 basis-0 flex-col items-start gap-6">
-            <CustomTreeView>
-              <CustomTreeView.Folder label="Seed" value="$20.5M">
-                <div className="flex w-full items-center justify-between">
-                  <CustomTreeView.Item
-                    className="h-auto w-auto flex-none"
-                    label="Leads"
-                    value=""
-                  />
-                  <div className="flex grow shrink-0 basis-0 flex-col items-end gap-2 px-1 py-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-heading-3 font-heading-3 text-success-700">
-                        Dragonfly
-                      </span>
-                      <span className="text-body font-body text-default-font">
-                        , BH Digital
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex w-full items-center justify-between">
-                  <CustomTreeView.Item
-                    className="h-auto w-auto flex-none"
-                    label="Followers"
-                    value=""
-                  />
-                  <div className="flex flex-col items-start gap-2">
-                    <div className="flex w-full items-center gap-1">
-                      <span className="text-heading-3 font-heading-3 text-success-700">
-                        Franklin Templeton,
-                      </span>
+            {company?.fundingHistory?.map((fundingRound) => (
+              <CustomTreeView>
+                <CustomTreeView.Folder label={fundingRound.round + (fundingRound.date ? ' (' + fundingRound.date + ')' : '')} value={'$' + formatNumber(fundingRound.amount)}>
+                  <div className="flex w-full h-auto items-center justify-between">
+                    <CustomTreeView.Item
+                      className="h-auto w-auto flex-none"
+                      label="Leads"
+                      value=""
+                    />
+
+                    <div className="flex grow shrink-0 basis-0 flex-col items-end gap-2 px-1 py-1">
                       <div className="flex grow shrink-0 basis-0 flex-col items-start gap-2 px-1 py-1">
-                        <div className="flex w-full items-center gap-2">
-                          <span className="grow shrink-0 basis-0 text-body-bold font-body-bold text-success-700">
-                            Wintermute Ventures,
-                          </span>
-                          <span className="text-body font-body text-default-font">
-                            OKX, Arthur Hayes,
-                          </span>
-                          <span className="text-body font-body text-default-font">
-                            Bybit,{" "}
-                          </span>
-                        </div>
+                        {company?.fundingHistory?.[0]?.leads ? (<InvestorsList investors={company?.fundingHistory?.[0]?.leads} />) : null}
                       </div>
                     </div>
-                    <span className="w-144 text-body font-body text-default-font">
-                      Maelstrom, Deribit, Gemini, GSR, BitMEX, Binance Labs,
-                      Avon Ventures, philip morris, Hashed, Galaxy Digital
-                    </span>
                   </div>
-                </div>
-              </CustomTreeView.Folder>
-            </CustomTreeView>
+                  <div className="flex w-full h-auto items-center justify-between">
+                    <CustomTreeView.Item
+                      className="h-auto w-auto flex-none"
+                      label="Followers"
+                      value=""
+                    />
+
+                    <div className="flex grow shrink-0 basis-0 flex-col items-end gap-2 px-1 py-1">
+                      <div className="flex grow shrink-0 basis-0 flex-col items-start gap-2 px-1 py-1">
+                        {company?.fundingHistory?.[0]?.followers ? (<InvestorsList investors={company?.fundingHistory?.[0]?.followers} />) : null}
+                      </div>
+                    </div>
+                  </div>
+
+                </CustomTreeView.Folder>
+
+              </CustomTreeView>
+            ))}
           </div>
         </div>
         <span className="text-heading-2 font-heading-2 text-default-font">
@@ -270,7 +585,7 @@ function CompanyDetails() {
                 </div>
               </div>
             </div>
-            
+
           </div>
         </div>
       </div>
