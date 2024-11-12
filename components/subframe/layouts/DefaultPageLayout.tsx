@@ -44,7 +44,7 @@ const DefaultPageLayoutRoot = React.forwardRef<
           <>
             <img
               className="h-6 flex-none object-cover"
-              src="https://res.cloudinary.com/subframe/image/upload/v1711417507/shared/y2rsnhq3mex4auk54aye.png"
+              src="/images/MoiraiLogo.png"
             />
             <div className="flex items-center gap-2">
               <TopbarWithCenterSearch.NavItem selected={true}>
@@ -54,7 +54,7 @@ const DefaultPageLayoutRoot = React.forwardRef<
                 Inbox
               </TopbarWithCenterSearch.NavItem>
               <TopbarWithCenterSearch.NavItem>
-                Reports
+                Search
               </TopbarWithCenterSearch.NavItem>
             </div>
           </>
@@ -67,7 +67,7 @@ const DefaultPageLayoutRoot = React.forwardRef<
             helpText=""
             icon="FeatherSearch"
           >
-            <TextField.Input placeholder="Search" />
+            <TextField.Input placeholder="Quick Search" />
           </TextField>
         }
         rightSlot={
