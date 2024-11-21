@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@next/bundle-analyzer": "^14.2.3",
+    "@prisma/client": "^5.22.0",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-checkbox": "^1.0.4",
     "@radix-ui/react-dialog": "^1.0.5",
@@ -109,6 +110,7 @@
     "postinstall-postinstall": "^2.1.0",
     "prettier": "3.0.3",
     "prettier-plugin-tailwindcss": "^0.5.7",
+    "prisma": "^5.22.0",
     "semantic-release": "^22.0.8",
     "storybook": "^7.5.3",
     "tailwindcss": "^3.3.5",
