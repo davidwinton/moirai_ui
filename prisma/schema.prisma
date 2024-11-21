@@ -1,0 +1,152 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model CompanyLinks {
+  websiteUrl    String?     @map("website_url")
+  companyDomain String?     @map("company_domain")
+  logoUrl       String?     @map("logo_url")
+  crunchbaseUrl String?     @map("crunchbase_url")
+  linkedinUrl   String?     @map("linkedin_url")
+  pitchbookUrl  String?     @map("pitchbook_url")
+  affinityUrl   String?     @map("affinity_url")
+  company       CompanyInfo @relation(fields: [companyId], references: [id])
+  companyId     Int         @unique @map("company_id")
+
+  @@index([companyId])
+  @@map("company_links")
+}
+
+model CompanyCategory {
+  id           Int    @id @default(autoincrement())
+  label        String
+  categoryType Int    @map("category_type")
+
+  companyCategories CompanyCategories[]
+
+  @@index([id])
+  @@map("company_category")
+}
+
+model CompanyCategories {
+  id         Int             @id @default(autoincrement())
+  category   CompanyCategory @relation(fields: [categoryId], references: [id])
+  categoryId Int             @map("category_id")
+  company    CompanyInfo     @relation(fields: [companyId], references: [id])
+  companyId  Int             @map("company_id")
+
+  @@index([companyId])
+  @@index([categoryId])
+  @@map("company_categories")
+}
+
+model CompanyInfo {
+  id              Int       @id @default(autoincrement())
+  name            String
+  crunchbaseId    String?   @map("crunchbase_id")
+  websiteUrl      String?   @map("website_url")
+  logoUrl         String?   @map("logo_url")
+  description     String?
+  foundedOn       DateTime? @map("founded_on")
+  countryCode     String?   @map("country_code")
+  lastRoundDate   String?   @map("last_round_date")
+  lastRound       String?   @map("last_round")
+  lastRoundAmount Float?    @map("last_round_amount")
+  totalRaised     Float?    @map("total_raised")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  Scores            CompanyScore[]
+  FundingRounds     FundingRound[]
+  CompanyLinks      CompanyLinks?
+  CompanyCategories CompanyCategories[]
+
+  @@index([id])
+  @@map("company_info")
+}
+
+model CompanyScore {
+  id             Int         @id @default(autoincrement())
+  company        CompanyInfo @relation(fields: [companyId], references: [id])
+  companyId      Int         @map("company_id")
+  metricId       Int?        @map("metric_id")
+  score          Float?
+  evaluationDate DateTime    @map("evaluation_date")
+  asOfDate       DateTime    @map("as_of_date")
+
+  @@index([companyId])
+  @@map("company_score")
+  // Should switch to @@id([companyId, metricId, asOfDate])
+}
+
+model LatestCompanyScore {
+  id             Int      @id @default(autoincrement())
+  companyId      Int      @map("company_id")
+  metric         String
+  score          Float
+  category       String
+  order          Int
+  evaluationDate DateTime @map("evaluation_date")
+  asOfDate       DateTime @map("as_of_date")
+
+  @@index([companyId])
+  @@map("latest_company_score")
+  // Should switch to @@id([companyId, metricId])
+  // Note asOfDate is included for debugging, but there should only be one instance of a metric for a given company.
+}
+
+model FundingRound {
+  id        Int         @id @default(autoincrement())
+  round     String
+  amount    Float?
+  date      String?
+  company   CompanyInfo @relation(fields: [companyId], references: [id])
+  companyId Int         @map("company_id")
+
+  investments Investment[]
+
+  @@index([companyId])
+  @@index([id])
+  @@map("funding_round")
+}
+
+model Investment {
+  id           Int          @id @default(autoincrement())
+  investor     Investor     @relation(fields: [investorId], references: [id])
+  investorId   Int          @map("investor_id") //Could have an @relation to Investor
+  isLead       Boolean      @map("is_lead")
+  companyId    Int          @map("company_id") //Could have an @relation to CompanyInfo
+  fundingRound FundingRound @relation(fields: [roundId], references: [id])
+  roundId      Int          @map("round_id") //Could have an @relation to FundingRound
+
+  @@index([companyId])
+  @@index([investorId])
+  @@map("investment")
+}
+
+model Investor {
+  id           Int     @id @default(autoincrement())
+  name         String
+  crunchbaseId String? @map("crunchbase_id")
+  logoUrl      String? @map("logo_url")
+  websiteUrl   String? @map("website_url")
+  description  String?
+  rank         Int?
+  relevance    Int?
+
+  investments Investment[]
+
+  @@index([id])
+  @@map("investor")
+}
