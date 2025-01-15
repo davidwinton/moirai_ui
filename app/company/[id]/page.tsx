@@ -12,6 +12,7 @@ import { HarmonicResponse, HarmonicInvestor } from "types/harmonicResponse";
 import InvestorsList from "components/InvestorList/InvestorList";
 import RatingsButton from "components/Rating/RatingsButton";
 import MetricChart from "components/MetricChart/MetricChart";
+import { Liquidity, Protocol } from "types/defiLlamaResponse";
 
 type Score = {
   metric: string;
@@ -29,11 +30,11 @@ type CompanyScore = {
 }
 
 type DefiDetails = {
-  businessType: string | undefined;
   tvl: number | undefined;
+  tvlHistory: Liquidity[] | undefined;
 }
 
-const scores = [56556915,53938838,18656035, 43276461,10195420,55016033,47467530,56362167,23491747,7584821,21776594,4211342,10909956,47596274,11148643,4160964,53068584,55883677,44597548,54813562,57544641,37066783,45206273,42851860,4116225,12760858,56739311,57028703,53927583,41922392,3081893,56244584,12587815,31723608,19390514,38808915,55218902,3863172,56731501,55560540]
+const scores = [56556915, 53938838, 18656035, 43276461, 10195420, 55016033, 47467530, 56362167, 23491747, 7584821, 21776594, 4211342, 10909956, 47596274, 11148643, 4160964, 53068584, 55883677, 44597548, 54813562, 57544641, 37066783, 45206273, 42851860, 4116225, 12760858, 56739311, 57028703, 53927583, 41922392, 3081893, 56244584, 12587815, 31723608, 19390514, 38808915, 55218902, 3863172, 56731501, 55560540]
 
 const getScores = (company: HarmonicResponse) => {
   const scores = [
@@ -67,10 +68,10 @@ const toTitleCase = (str: string) => {
     return ''
   }
   return str.toLowerCase()
-  .replace("_", " ")
-      .split(" ")
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
+    .replace("_", " ")
+    .split(" ")
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 }
 
 const formatDate = (date: string, justYear: boolean) => {
@@ -243,6 +244,12 @@ function CompanyDetails({ params }: { params: { id: string } }) {
 
           const data = await response.json() as HarmonicResponse
           setCompany(data)
+
+          if (data) {
+            if (data.name === 'Ethena Labs') {
+              fetchDefiDetails('ethena')
+            }
+          }
         } catch (err) {
           if (err instanceof Error) {
             setError(err.message)
@@ -252,6 +259,33 @@ function CompanyDetails({ params }: { params: { id: string } }) {
           }
         } finally {
           setIsLoading(false)
+        }
+      }
+
+      const fetchDefiDetails = async (companyName: string) => {
+        try {
+          const response = await fetch(`/api/defillama/${companyName}`)
+
+          if (!response.ok) {
+            console.log(response)
+            setDefiDetails(null)
+          }
+
+          const data = await response.json() as Protocol
+          const tvlHistory = data.chainTvls?.Ethereum?.tvl
+          const tvl = tvlHistory?.[tvlHistory.length - 1]?.totalLiquidityUSD
+          setDefiDetails({
+            tvl: tvl,
+            tvlHistory: tvlHistory
+          })
+
+        } catch (err) {
+          if (err instanceof Error) {
+            setError(err.message)
+          }
+          else {
+            setError('Something went wrong with DefiLlama integration')
+          }
         }
       }
 
@@ -357,7 +391,7 @@ function CompanyDetails({ params }: { params: { id: string } }) {
               {company?.customer_type && <Badge key={company?.customer_type} variant="neutral">{company?.customer_type}</Badge>}
             </div>
             <VerticalStepper />
-            
+
             <div className="flex items-start gap-2 px-1 py-1 float-right">
               {getBadge('Overall', companyScores?.overall?.score)}
               {getBadge('Team', companyScores?.team?.score)}
@@ -518,22 +552,22 @@ function CompanyDetails({ params }: { params: { id: string } }) {
                     Headcount
                   </span>
                   {company.traction_metrics.headcount?.metrics ? (
-                  <>
+                    <>
 
-                    <div className="flex w-full items-start gap-4 rounded-md border border-solid border-neutral-border bg-default-background px-4 py-4 shadow-sm">
-                      <MetricChart chartLabel="Headcount" data={company?.traction_metrics?.headcount.metrics} />
-                    </div>
-                  </>) : (<>
-                    <div className="flex w-full flex-col items-start gap-4 rounded-md border border-solid border-neutral-border bg-default-background px-4 py-4 shadow-sm">
-                      <div className="flex h-52 w-full flex-none items-center gap-2">
-                        <img
-                          className="grow shrink-0 basis-0 self-stretch object-contain"
-                          src="https://res.cloudinary.com/subframe/image/upload/v1725510304/uploads/3896/bhcsy4vlwwetkq8fjh5e.png"
-                        />
+                      <div className="flex w-full items-start gap-4 rounded-md border border-solid border-neutral-border bg-default-background px-4 py-4 shadow-sm">
+                        <MetricChart chartLabel="Headcount" data={company?.traction_metrics?.headcount.metrics} />
                       </div>
-                    </div>
-                  </>)}
-                  
+                    </>) : (<>
+                      <div className="flex w-full flex-col items-start gap-4 rounded-md border border-solid border-neutral-border bg-default-background px-4 py-4 shadow-sm">
+                        <div className="flex h-52 w-full flex-none items-center gap-2">
+                          <img
+                            className="grow shrink-0 basis-0 self-stretch object-contain"
+                            src="https://res.cloudinary.com/subframe/image/upload/v1725510304/uploads/3896/bhcsy4vlwwetkq8fjh5e.png"
+                          />
+                        </div>
+                      </div>
+                    </>)}
+
                 </div>
                 <span className="text-heading-3 font-heading-3 text-default-font">
                   Web Traffic
@@ -556,7 +590,7 @@ function CompanyDetails({ params }: { params: { id: string } }) {
                   </>)}
               </div>
               <div className="flex grow shrink-0 basis-0 flex-col items-start gap-4">
-                <div className="flex w-full flex-col items-start gap-4">
+                {/* <div className="flex w-full flex-col items-start gap-4">
                   <span className="text-heading-3 font-heading-3 text-default-font">
                     Trends
                   </span>
@@ -568,17 +602,16 @@ function CompanyDetails({ params }: { params: { id: string } }) {
                       />
                     </div>
                   </div>
-                </div>
-                {defiDetails?.tvl ? (
+                </div> */}
+                {defiDetails?.tvlHistory ? (
                   <>
                     <span className="text-heading-3 font-heading-3 text-default-font">
                       TVL
                     </span>
                     <div className="flex w-full items-start gap-4 rounded-md border border-solid border-neutral-border bg-default-background px-4 py-4 shadow-sm">
-                      <img
-                        className="h-52 grow shrink-0 basis-0 object-contain"
-                        src="https://res.cloudinary.com/subframe/image/upload/v1725510668/uploads/3896/xvtrhvyt15eabntfxulv.png"
-                      />
+                      <div className="flex h-600 w-full flex-none items-center gap-2">
+                        <MetricChart chartLabel="TVL over Time" data={defiDetails?.tvlHistory?.map((item: any) => ({ timestamp: item.date, metric_value: item.totalLiquidityUSD }))} />
+                      </div>
                     </div>
                   </>) : null}
                 {company.traction_metrics.linkedin_follower_count?.metrics ? (
