@@ -47,11 +47,11 @@ const DefaultPageLayoutRoot = React.forwardRef<
               src="/images/MoiraiLogo.png"
             />
             <div className="flex items-center gap-2">
-              <TopbarWithCenterSearch.NavItem selected={true}>
+              <TopbarWithCenterSearch.NavItem>
                 Home
               </TopbarWithCenterSearch.NavItem>
-              <TopbarWithCenterSearch.NavItem>
-                Inbox
+              <TopbarWithCenterSearch.NavItem >
+                Recommendations
               </TopbarWithCenterSearch.NavItem>
               <TopbarWithCenterSearch.NavItem>
                 Search
@@ -72,9 +72,7 @@ const DefaultPageLayoutRoot = React.forwardRef<
         }
         rightSlot={
           <>
-            <Button variant="neutral-tertiary" icon="FeatherPlusCircle">
-              New
-            </Button>
+            
             <SubframeCore.DropdownMenu.Root>
               <SubframeCore.DropdownMenu.Trigger asChild={true}>
                 <Avatar image="https://res.cloudinary.com/subframe/image/upload/v1711417507/shared/fychrij7dzl8wgq2zjq9.avif">
