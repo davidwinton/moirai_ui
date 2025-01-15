@@ -65,7 +65,7 @@ model CompanyInfo {
   lastRoundAmount Float?    @map("last_round_amount")
   totalRaised     Float?    @map("total_raised")
   createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  updatedAt       DateTime  @updatedAt @default(now())
 
   Scores            CompanyScore[]
   FundingRounds     FundingRound[]
