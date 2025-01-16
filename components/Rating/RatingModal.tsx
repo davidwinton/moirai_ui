@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
-
-type Ratings = {
-  quality: number;
-  fit: number;
-  team: number;
-  investors: number;
-};
+import { Ratings } from 'types/types';
 
 type RatingModalProps = {
   isOpen: boolean;
@@ -17,12 +11,15 @@ const RatingModal: React.FC<RatingModalProps> = ({ isOpen, onClose, onSubmit }) 
   const [ratings, setRatings] = useState<Ratings>({
     quality: 5,
     fit: 5,
-    team: 5,
-    investors: 5,
+    team: '', // Default to blank
+    investors: '', // Default to blank
   });
 
-  const handleChange = (field: keyof Ratings, value: number) => {
-    setRatings((prev) => ({ ...prev, [field]: value }));
+  const handleChange = (field: keyof Ratings, value: string) => {
+    setRatings((prev) => ({
+      ...prev,
+      [field]: value === '' ? '' : parseInt(value, 10), // Handle blank input or number
+    }));
   };
 
   const handleSubmit = () => {
@@ -44,9 +41,9 @@ const RatingModal: React.FC<RatingModalProps> = ({ isOpen, onClose, onSubmit }) 
                 type="number"
                 min="1"
                 max="10"
-                value={ratings[field.toLowerCase() as keyof Ratings]}
+                value={ratings[field.toLowerCase() as keyof Ratings] || ''}
                 onChange={(e) =>
-                  handleChange(field.toLowerCase() as keyof Ratings, parseInt(e.target.value, 10))
+                  handleChange(field.toLowerCase() as keyof Ratings, e.target.value)
                 }
                 className="border border-gray-300 rounded-md px-3 py-1 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
