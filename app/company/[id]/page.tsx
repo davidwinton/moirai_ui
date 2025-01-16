@@ -13,6 +13,7 @@ import InvestorsList from "components/InvestorList/InvestorList";
 import RatingsButton from "components/Rating/RatingsButton";
 import MetricChart from "components/MetricChart/MetricChart";
 import { Liquidity, Protocol } from "types/defiLlamaResponse";
+import { Ratings } from "types/types";
 
 type Score = {
   metric: string;
@@ -123,12 +124,6 @@ const getPercentageSpan = (amount: number | null | undefined) => {
   return <span className="text-body font-body text-error-700">{formatPercentage(amount)}</span>
 }
 
-type Rating = {
-  quality: number,
-  fit: number,
-  team: number,
-  investors: number
-}
 const tier_1 = ['maven capital', 'a16z crypto', 'binance labs', 'digital currency group', 'animoca brands', 'animoca ventures', 'andreessen horowitz',
   'pantera capital',
   'coinbase',
@@ -219,15 +214,10 @@ function CompanyDetails({ params }: { params: { id: string } }) {
   const [company, setCompany] = useState<HarmonicResponse | null>(null);
   const [companyScores, setCompanyScores] = useState<CompanyScore | null>(null);
   const [defiDetails, setDefiDetails] = useState<DefiDetails | null>(null);
-  const [ratings, setRatings] = useState<Rating | null>(null);
+  const [ratings, setRatings] = useState<Ratings | null>(null);
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const id = params.id
-
-  const handleSubmitRatings = (ratings: { quality: number; fit: number; team: number; investors: number }) => {
-    console.log('Ratings Submitted:', ratings);
-    setRatings(ratings)
-  };
 
   useEffect(() => {
 
@@ -250,6 +240,7 @@ function CompanyDetails({ params }: { params: { id: string } }) {
               fetchDefiDetails('ethena')
             }
           }
+          fetchRatings()
         } catch (err) {
           if (err instanceof Error) {
             setError(err.message)
@@ -289,6 +280,29 @@ function CompanyDetails({ params }: { params: { id: string } }) {
         }
       }
 
+      const fetchRatings = async () => {
+        try {
+          const response = await fetch(`/api/ratings/${id}`)
+
+          if (!response.ok) {
+            console.log(response)
+            setRatings(null)
+          }
+
+          const data = await response.json() as Ratings
+          
+          setRatings(data)
+
+        } catch (err) {
+          if (err instanceof Error) {
+            console.error(err.message)
+          }
+          else {
+            console.error('Something went wrong with DefiLlama integration')
+          }
+        }
+      }
+
       fetchCompany()
 
     }
@@ -302,6 +316,36 @@ function CompanyDetails({ params }: { params: { id: string } }) {
 
   if (!company) {
     notFound();
+  }
+
+  const updateRatings = async (ratings: Ratings) => {
+    try {
+      const response = await fetch(`/api/ratings/${id}`,
+        {
+          method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(ratings),
+    })
+
+      if (!response.ok) {
+        setRatings(null)
+        return;
+      }
+
+      const data = await response.json() as Ratings
+      
+      setRatings(data);
+
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message)
+      }
+      else {
+        setError('Something went wrong with updating ratings')
+      }
+    }
   }
 
   return (
@@ -321,10 +365,10 @@ function CompanyDetails({ params }: { params: { id: string } }) {
               </span>
 
             </div>
-            <RatingsButton onSubmit={handleSubmitRatings} />
+            <RatingsButton onSubmit={updateRatings} />
             <div className="flex items-center gap-2">
-              {ratings?.quality ? (getRatingBadge('Q', ratings?.quality)) : null}
-              {ratings?.fit ? (getRatingBadge('F', ratings?.fit)) : null}
+              {!!ratings?.quality ? (getRatingBadge('Q', ratings?.quality)) : null}
+              {!!ratings?.fit ? (getRatingBadge('F', ratings?.fit)) : null}
               {ratings?.investors ? (getRatingBadge('I', ratings?.investors)) : null}
               {ratings?.team ? (getRatingBadge('T', ratings?.team)) : null}
               {!!overallScore && <Badge variant="success">{'' + overallScore}</Badge>}

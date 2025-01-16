@@ -1,24 +1,13 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { DefaultPageLayout } from "@/subframe/layouts/DefaultPageLayout";
 import { Badge } from "@/subframe/components/Badge";
 import { VerticalStepper } from "@/subframe/components/VerticalStepper";
 import * as SubframeCore from "@subframe/core";
-import { CustomTreeView } from "@/subframe/components/CustomTreeView";
-import { notFound } from "next/navigation";
-import { HarmonicResponse, HarmonicInvestor } from "types/harmonicResponse";
-
-
-import { IconButton } from "@/subframe/components/IconButton";
-import { Avatar } from "@/subframe/components/Avatar";
-import { Button } from "@/subframe/components/Button";
-import { Label } from "@subframe/core/dist/cjs/components/radix/context-menu";
-import { get } from "http";
-import InvestorsList from "components/InvestorList/InvestorList";
+import React, { useEffect, useState } from "react";
+import { HarmonicInvestor, HarmonicResponse } from "types/harmonicResponse";
 import RatingsButton from "components/Rating/RatingsButton";
-import MetricChart from "components/MetricChart/MetricChart";
 import Link from "next/link";
+import { Ratings } from "types/types";
 
 type Score = {
     metric: string;
@@ -122,12 +111,6 @@ const getPercentageSpan = (amount: number | null | undefined) => {
     return <span className="text-body font-body text-error-700">{formatPercentage(amount)}</span>
 }
 
-type Rating = {
-    quality: number,
-    fit: number,
-    team: number,
-    investors: number
-}
 const tier_1 = ['Maven Capital', 'a16z crypto', 'binance labs', 'digital currency group', 'animoca brands', 'animoca ventures', 'Andreessen Horowitz',
     'Pantera Capital',
     'Coinbase',
@@ -220,7 +203,7 @@ type DetailsParams = {
 const CompanyDetails: React.FC<DetailsParams> = ({id}) => {
     const [company, setCompany] = useState<HarmonicResponse | null>(null);
     const [defiDetails, setDefiDetails] = useState<DefiDetails | null>(null);
-    const [ratings, setRatings] = useState<Rating | null>(null);
+    const [ratings, setRatings] = useState<Ratings | null>(null);
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     useEffect(() => {
@@ -238,6 +221,7 @@ const CompanyDetails: React.FC<DetailsParams> = ({id}) => {
 
                     const data = await response.json() as HarmonicResponse
                     setCompany(data)
+                    fetchRatings()
                 } catch (err) {
                     if (err instanceof Error) {
                         setError(err.message)
@@ -250,14 +234,61 @@ const CompanyDetails: React.FC<DetailsParams> = ({id}) => {
                 }
             }
 
+            const fetchRatings = async () => {
+                try {
+                  const response = await fetch(`/api/ratings/${id}`)
+        
+                  if (!response.ok) {
+                    console.log(response)
+                    setRatings(null)
+                  }
+        
+                  const data = await response.json() as Ratings
+                  setRatings(data)
+        
+                } catch (err) {
+                  if (err instanceof Error) {
+                    console.error(err.message)
+                  }
+                  else {
+                    console.error('Something went wrong with DefiLlama integration')
+                  }
+                }
+              }
+
             fetchCompany()
 
         }
     }, [id])
-    const handleSubmitRatings = (ratings: { quality: number; fit: number; team: number; investors: number }) => {
-        console.log('Ratings Submitted:', ratings);
-        setRatings(ratings)
-    };
+    
+  const updateRatings = async (ratings: Ratings) => {
+    try {
+      const response = await fetch(`/api/ratings/${id}`,
+        {
+          method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(ratings),
+    })
+
+      if (!response.ok) {
+        console.log(response)
+        setRatings(null)
+      }
+
+      const data = await response.json() as Ratings
+      setRatings(data)
+
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message)
+      }
+      else {
+        setError('Something went wrong with DefiLlama integration')
+      }
+    }
+  }
     
   if (isLoading) return <div>Loading...</div>
   if (error) return <div>Error: {error}</div>
@@ -285,7 +316,7 @@ const CompanyDetails: React.FC<DetailsParams> = ({id}) => {
                             </span>
 
                         </div>
-                        <RatingsButton onSubmit={handleSubmitRatings} />
+                        <RatingsButton onSubmit={updateRatings} />
                         <div className="flex items-center gap-2">
                             {ratings?.quality ? (getRatingBadge('Q', ratings?.quality)) : null}
                             {ratings?.fit ? (getRatingBadge('F', ratings?.fit)) : null}

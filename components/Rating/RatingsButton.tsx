@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
 import RatingModal from './RatingModal';
+import { Ratings } from 'types/types';
 
-type Ratings = {
-  quality: number,
-  fit: number,
-  team: number,
-  investors: number
-}
 type RatingsButtonProps = {
   
   onSubmit: (ratings: Ratings) => void; // Passed from the parent
