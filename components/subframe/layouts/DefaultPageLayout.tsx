@@ -17,6 +17,7 @@ import { Button } from "../components/Button";
 import { DropdownMenu } from "../components/DropdownMenu";
 import { Avatar } from "../components/Avatar";
 import Link from "next/link";
+import SearchComponent from "components/Search/Search";
 
 interface DefaultPageLayoutRootProps
   extends React.HTMLAttributes<HTMLDivElement> {
@@ -65,15 +66,19 @@ const DefaultPageLayoutRoot = React.forwardRef<
           </>
         }
         centerSlot={
-          <TextField
-            className="h-auto grow shrink-0 basis-0"
-            variant="filled"
-            label=""
-            helpText=""
-            icon="FeatherSearch"
-          >
-            <TextField.Input placeholder="Quick Search" />
-          </TextField>
+          // <TextField
+          //   className="h-auto grow shrink-0 basis-0"
+          //   variant="filled"
+          //   label=""
+          //   helpText=""
+          //   icon="FeatherSearch"
+          // >
+          //   <TextField.Input placeholder="Quick Search" />
+          // </TextField>
+          <div className="h-auto grow shrink-0 basis-0">
+<SearchComponent />
+          </div>
+          
         }
         rightSlot={
           <>
