@@ -16,6 +16,7 @@ import { TextField } from "../components/TextField";
 import { Button } from "../components/Button";
 import { DropdownMenu } from "../components/DropdownMenu";
 import { Avatar } from "../components/Avatar";
+import Link from "next/link";
 
 interface DefaultPageLayoutRootProps
   extends React.HTMLAttributes<HTMLDivElement> {
@@ -47,12 +48,16 @@ const DefaultPageLayoutRoot = React.forwardRef<
               src="/images/MoiraiLogo.png"
             />
             <div className="flex items-center gap-2">
-              <TopbarWithCenterSearch.NavItem>
-                Home
-              </TopbarWithCenterSearch.NavItem>
-              <TopbarWithCenterSearch.NavItem >
-                Recommendations
-              </TopbarWithCenterSearch.NavItem>
+              <Link href="/company_list/1">
+                <TopbarWithCenterSearch.NavItem>
+                  Home
+                </TopbarWithCenterSearch.NavItem>
+              </Link>
+              <Link href="/company_list/1">
+                <TopbarWithCenterSearch.NavItem >
+                  Recommendations
+                </TopbarWithCenterSearch.NavItem>
+              </Link>
               <TopbarWithCenterSearch.NavItem>
                 Search
               </TopbarWithCenterSearch.NavItem>
@@ -72,11 +77,11 @@ const DefaultPageLayoutRoot = React.forwardRef<
         }
         rightSlot={
           <>
-            
+
             <SubframeCore.DropdownMenu.Root>
               <SubframeCore.DropdownMenu.Trigger asChild={true}>
-                <Avatar image="https://res.cloudinary.com/subframe/image/upload/v1711417507/shared/fychrij7dzl8wgq2zjq9.avif">
-                  A
+                <Avatar image="https://res.cloudinary.com/subframe/image/upload/v1736981733/uploads/3896/fernuedpg37czbsk0glh.png">
+                  D
                 </Avatar>
               </SubframeCore.DropdownMenu.Trigger>
               <SubframeCore.DropdownMenu.Portal>
