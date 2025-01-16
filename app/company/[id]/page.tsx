@@ -555,7 +555,7 @@ function CompanyDetails({ params }: { params: { id: string } }) {
                     <>
 
                       <div className="flex w-full items-start gap-4 rounded-md border border-solid border-neutral-border bg-default-background px-4 py-4 shadow-sm">
-                        <MetricChart chartLabel="Headcount" data={company?.traction_metrics?.headcount.metrics} />
+                        <MetricChart chartLabel="Headcount" yAxisLabel="Employees" data={company?.traction_metrics?.headcount.metrics} />
                       </div>
                     </>) : (<>
                       <div className="flex w-full flex-col items-start gap-4 rounded-md border border-solid border-neutral-border bg-default-background px-4 py-4 shadow-sm">
@@ -576,7 +576,7 @@ function CompanyDetails({ params }: { params: { id: string } }) {
                   <>
 
                     <div className="flex w-full items-start gap-4 rounded-md border border-solid border-neutral-border bg-default-background px-4 py-4 shadow-sm">
-                      <MetricChart chartLabel="Web Traffic" data={company?.traction_metrics?.web_traffic.metrics} />
+                      <MetricChart chartLabel="Web Traffic" yAxisLabel="Monthly Visitors" data={company?.traction_metrics?.web_traffic.metrics} />
                     </div>
                   </>) : (<>
                     <div className="flex w-full flex-col items-start gap-4 rounded-md border border-solid border-neutral-border bg-default-background px-4 py-4 shadow-sm">
@@ -610,7 +610,7 @@ function CompanyDetails({ params }: { params: { id: string } }) {
                     </span>
                     <div className="flex w-full items-start gap-4 rounded-md border border-solid border-neutral-border bg-default-background px-4 py-4 shadow-sm">
                       <div className="flex h-600 w-full flex-none items-center gap-2">
-                        <MetricChart chartLabel="TVL over Time" data={defiDetails?.tvlHistory?.map((item: any) => ({ timestamp: item.date, metric_value: item.totalLiquidityUSD }))} />
+                        <MetricChart chartLabel="TVL over Time" yAxisLabel="USD" data={defiDetails?.tvlHistory?.map((item: any) => ({ timestamp: 1000* item.date, metric_value: item.totalLiquidityUSD }))} />
                       </div>
                     </div>
                   </>) : null}
@@ -620,7 +620,7 @@ function CompanyDetails({ params }: { params: { id: string } }) {
                       LinkedIn Followers
                     </span>
                     <div className="flex w-full items-start gap-4 rounded-md border border-solid border-neutral-border bg-default-background px-4 py-4 shadow-sm">
-                      <MetricChart chartLabel="LinkedIn Follower Count" data={company?.traction_metrics?.linkedin_follower_count.metrics} />
+                      <MetricChart chartLabel="LinkedIn Follower Count" yAxisLabel="Followers" data={company?.traction_metrics?.linkedin_follower_count.metrics} />
                     </div>
                   </>) : null}
               </div>
