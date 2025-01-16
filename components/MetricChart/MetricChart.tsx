@@ -12,10 +12,11 @@ type DataPoint = {
 
 type MetricChartProps = {
     chartLabel: string;
+    yAxisLabel: string | undefined;
     data: DataPoint[];
 };
 
-const MetricChart: React.FC<MetricChartProps> = ({chartLabel, data }) => {
+const MetricChart: React.FC<MetricChartProps> = ({chartLabel, yAxisLabel, data }) => {
     // Sort the data by timestamp to ensure the graph is plotted correctly
     const sortedData = [...data].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 
@@ -38,6 +39,7 @@ const MetricChart: React.FC<MetricChartProps> = ({chartLabel, data }) => {
         responsive: true,
         plugins: {
             legend: {
+                display: false,
                 position: 'top' as const,
             },
             title: {
@@ -55,7 +57,7 @@ const MetricChart: React.FC<MetricChartProps> = ({chartLabel, data }) => {
             y: {
                 title: {
                     display: true,
-                    text: 'Metric Value',
+                    text: yAxisLabel || 'Metric Value',
                 },
                 beginAtZero: true, // Start the y-axis at 0
             },
