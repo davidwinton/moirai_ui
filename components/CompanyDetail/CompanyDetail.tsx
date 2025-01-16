@@ -7,22 +7,7 @@ import React, { useEffect, useState } from "react";
 import { HarmonicInvestor, HarmonicResponse } from "types/harmonicResponse";
 import RatingsButton from "components/Rating/RatingsButton";
 import Link from "next/link";
-import { Ratings } from "types/types";
-
-type Score = {
-    metric: string;
-    score: number | undefined;
-    category: string | undefined;
-    orderId: number | undefined;
-}
-type CompanyScore = {
-    overall: Score | undefined;
-    team: Score | undefined;
-    growth: Score | undefined;
-    investors: Score | undefined;
-    mandateFit: Score | undefined;
-    subscores: Score[] | undefined;
-}
+import { Ratings, CompanyScore, Score } from "types/types";
 
 type DefiDetails = {
     businessTyoe: string | undefined;
@@ -57,11 +42,63 @@ const getRatingBadge = (label: string, score: number | undefined) => {
     return <Badge variant={variant}>{`${label}: ${score}`}</Badge>
 }
 
-const scores = [56556915,53938838,18656035, 43276461,10195420,55016033,47467530,56362167,23491747,7584821,21776594,4211342,10909956,47596274,11148643,4160964,53068584,55883677,44597548,54813562,57544641,37066783,45206273,42851860,4116225,12760858,56739311,57028703,53927583,41922392,3081893,56244584,12587815,31723608,19390514,38808915,55218902,3863172,56731501,55560540]
+const score_list = [56556915, 53938838, 18656035, 43276461, 10195420, 55016033, 47467530, 56362167, 23491747, 7584821, 21776594, 4211342, 10909956, 47596274, 11148643, 4160964, 53068584, 55883677, 44597548, 54813562, 57544641, 37066783, 45206273, 42851860, 4116225, 12760858, 56739311, 57028703, 53927583, 41922392, 3081893, 56244584, 12587815, 31723608, 19390514, 38808915, 55218902, 3863172, 56731501, 55560540]
+const traction_list = [1.325233381, 1.318884096, 1.314586459, 1.308909138, 1.305387796, 1.29260253, 1.288478579, 1.282236286, 1.277637249, 1.276383974, 1.271174315, 1.26940425, 1.269369842, 1.268895106, 1.259100924, 1.258843782, 1.256140359, 1.254112058, 1.24871431, 1.246253549, 1.245541662, 1.243347265, 1.242136454, 1.240723887, 1.239263786, 1.238484949, 1.238208423, 1.235340616, 1.232110137, 1.231831264, 1.230484842, 1.230320682, 1.2294076, 1.229000718, 1.228306552, 1.224108585, 1.223804307, 1.221828471, 1.219599082, 1.217149372, 1.216206262, 1.214659937]
+
+
+const calculateCompanyScore = (company: HarmonicResponse) => {
+
+    if (!company) {
+
+        return null;
+    }
+    const scoreIndex = score_list.indexOf(company.id)
+    const teamScore = Math.min(80 + (company?.employee_highlights?.length || 0), 100)
+    const tractionScore = scoreIndex !== -1 ? 100 * (traction_list[scoreIndex] || 0) / 1.325233381 : 0
+    const allInvestors = company.funding_rounds?.map(fundingRound => fundingRound.investors).flat()
+    const leads = allInvestors?.filter(investor => investor.is_lead)?.map(investor => getInvestorRank(investor.investor_name))?.map(tier => tier === 0 ? 0 : 5 - tier)
+    const followers = allInvestors?.filter(investor => !investor.is_lead)?.map(investor => getInvestorRank(investor.investor_name))?.map(tier => tier === 0 ? 0 : 5 - tier)
+    const highestLead = leads?.length ? Math.max(...leads) : 0
+    const highestFollower = followers?.length ? Math.max(...followers) : highestLead
+
+    const averageLead = leads?.length ? leads.reduce((a: number, b: number) => a + b, 0) / leads.length : highestLead
+    const averageFollower = followers?.length ? followers.reduce((a: number, b: number) => a + b, 0) / followers.length : highestFollower
+
+
+    const isBlockchain = company.tags_v2.filter(tag => tag.type?.toLowerCase().includes('technology') && tag.display_value?.toLowerCase().includes('blockchain')).length > 0
+    const isFinServ = company.tags_v2.filter(tag => tag.type?.toLowerCase().includes('market') && tag.display_value?.toLowerCase().includes('financial')).length > 0
+
+    const scores: CompanyScore = {
+        overall: {
+            metric: 'overall',
+            score: Math.floor(scoreIndex !== -1 ? 93 - scoreIndex / 2 : 0),
+        },
+        team: {
+            metric: 'team',
+            score: Math.floor(teamScore)
+        },
+
+        growth: {
+            metric: 'growth',
+            score: Math.floor(tractionScore)
+        },
+        investors: {
+            metric: 'investor',
+            score: Math.floor((highestLead + averageLead) * 10 + (highestFollower + averageFollower) * 2.5)
+        },
+        mandateFit: {
+            metric: 'mandate fit',
+            score: (isBlockchain ? 70 : 0) + (isFinServ ? 30 : 0)
+        },
+
+    }
+    return scores
+
+}
 
 const toTitleCase = (str: string) => {
     return str.toLowerCase()
-    .replace("_", "-")
+        .replace("_", "-")
         .split(" ")
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(" ");
@@ -200,9 +237,10 @@ type DetailsParams = {
     id: number
 }
 
-const CompanyDetails: React.FC<DetailsParams> = ({id}) => {
+const CompanyDetails: React.FC<DetailsParams> = ({ id }) => {
     const [company, setCompany] = useState<HarmonicResponse | null>(null);
     const [defiDetails, setDefiDetails] = useState<DefiDetails | null>(null);
+    const [companyScores, setCompanyScores] = useState<CompanyScore | null>(null);
     const [ratings, setRatings] = useState<Ratings | null>(null);
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -221,6 +259,7 @@ const CompanyDetails: React.FC<DetailsParams> = ({id}) => {
 
                     const data = await response.json() as HarmonicResponse
                     setCompany(data)
+                    setCompanyScores(calculateCompanyScore(data))
                     fetchRatings()
                 } catch (err) {
                     if (err instanceof Error) {
@@ -236,68 +275,68 @@ const CompanyDetails: React.FC<DetailsParams> = ({id}) => {
 
             const fetchRatings = async () => {
                 try {
-                  const response = await fetch(`/api/ratings/${id}`)
-        
-                  if (!response.ok) {
-                    console.log(response)
-                    setRatings(null)
-                  }
-        
-                  const data = await response.json() as Ratings
-                  setRatings(data)
-        
+                    const response = await fetch(`/api/ratings/${id}`)
+
+                    if (!response.ok) {
+                        console.log(response)
+                        setRatings(null)
+                    }
+
+                    const data = await response.json() as Ratings
+                    setRatings(data)
+
                 } catch (err) {
-                  if (err instanceof Error) {
-                    console.error(err.message)
-                  }
-                  else {
-                    console.error('Something went wrong with DefiLlama integration')
-                  }
+                    if (err instanceof Error) {
+                        console.error(err.message)
+                    }
+                    else {
+                        console.error('Something went wrong with DefiLlama integration')
+                    }
                 }
-              }
+            }
 
             fetchCompany()
 
         }
     }, [id])
-    
-  const updateRatings = async (ratings: Ratings) => {
-    try {
-      const response = await fetch(`/api/ratings/${id}`,
-        {
-          method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(ratings),
-    })
 
-      if (!response.ok) {
-        console.log(response)
-        setRatings(null)
-      }
+    const updateRatings = async (ratings: Ratings) => {
+        try {
+            const response = await fetch(`/api/ratings/${id}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(ratings),
+                })
 
-      const data = await response.json() as Ratings
-      setRatings(data)
+            if (!response.ok) {
+                console.log(response)
+                setRatings(null)
+            }
 
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message)
-      }
-      else {
-        setError('Something went wrong with DefiLlama integration')
-      }
+            const data = await response.json() as Ratings
+            setRatings(data)
+
+        } catch (err) {
+            if (err instanceof Error) {
+                setError(err.message)
+            }
+            else {
+                setError('Something went wrong with DefiLlama integration')
+            }
+        }
     }
-  }
-    
-  if (isLoading) return <div>Loading...</div>
-  if (error) return <div>Error: {error}</div>
 
-  if (!company) {
-    return null;
-  }
-  const scoreIndex = scores.indexOf(Number(id))
-  const overallScore = scoreIndex !== -1 ? 93 - scoreIndex / 2 : ''
+    if (isLoading) return <div>Loading...</div>
+    if (error) return <div>Error: {error}</div>
+
+    if (!company) {
+        return null;
+    }
+    const scoreIndex = score_list.indexOf(Number(id))
+    const overallScore = scoreIndex !== -1 ? 93 - scoreIndex / 2 : ''
 
     return (
         <Link href={`/company/${id}`} className="p-2">
@@ -386,13 +425,13 @@ const CompanyDetails: React.FC<DetailsParams> = ({id}) => {
                             {company?.customer_type && <Badge key={company?.customer_type} variant="neutral">{company?.customer_type}</Badge>}
                         </div>
                         <VerticalStepper />
-                        {/* <div className="flex items-start gap-2 px-1 py-1 float-right">
+                        <div className="flex items-start gap-2 px-1 py-1 float-right">
                             {getBadge('Overall', companyScores?.overall?.score)}
                             {getBadge('Team', companyScores?.team?.score)}
                             {getBadge('Investors', companyScores?.investors?.score)}
                             {getBadge('Growth', companyScores?.growth?.score)}
                             {getBadge('Fit', companyScores?.mandateFit?.score)}
-                        </div> */}
+                        </div>
                     </div>
                     <div className="flex h-px w-full flex-none flex-col items-center gap-2 bg-neutral-200" />
                     <span className="text-body font-body text-default-font">
