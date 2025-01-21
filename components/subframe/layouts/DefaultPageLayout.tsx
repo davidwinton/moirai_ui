@@ -9,15 +9,13 @@
  * Avatar — https://app.subframe.com/007b7d1e11bb/library?component=Avatar_bec25ae6-5010-4485-b46b-cf79e3943ab2
  */
 
-import React from "react";
 import * as SubframeCore from "@subframe/core";
-import { TopbarWithCenterSearch } from "../components/TopbarWithCenterSearch";
-import { TextField } from "../components/TextField";
-import { Button } from "../components/Button";
-import { DropdownMenu } from "../components/DropdownMenu";
-import { Avatar } from "../components/Avatar";
-import Link from "next/link";
 import SearchComponent from "components/Search/Search";
+import Link from "next/link";
+import React from "react";
+import { Avatar } from "../components/Avatar";
+import { DropdownMenu } from "../components/DropdownMenu";
+import { TopbarWithCenterSearch } from "../components/TopbarWithCenterSearch";
 
 interface DefaultPageLayoutRootProps
   extends React.HTMLAttributes<HTMLDivElement> {
@@ -32,6 +30,8 @@ const DefaultPageLayoutRoot = React.forwardRef<
   { children, className, ...otherProps }: DefaultPageLayoutRootProps,
   ref
 ) {
+
+
   return (
     <div
       className={SubframeCore.twClassNames(
@@ -51,11 +51,11 @@ const DefaultPageLayoutRoot = React.forwardRef<
             <div className="flex items-center gap-2">
               <Link href="/company_list/1">
                 <TopbarWithCenterSearch.NavItem>
-                  Home
+                  Moirai
                 </TopbarWithCenterSearch.NavItem>
               </Link>
               <Link href="/company_list/1">
-                <TopbarWithCenterSearch.NavItem >
+                <TopbarWithCenterSearch.NavItem>
                   Recommendations
                 </TopbarWithCenterSearch.NavItem>
               </Link>
