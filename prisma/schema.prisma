@@ -65,7 +65,7 @@ model CompanyInfo {
   lastRoundAmount Float?    @map("last_round_amount")
   totalRaised     Float?    @map("total_raised")
   createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
 
   Scores            CompanyScore[]
   FundingRounds     FundingRound[]
@@ -84,10 +84,10 @@ model CompanyScore {
   score          Float?
   evaluationDate DateTime    @map("evaluation_date")
   asOfDate       DateTime    @map("as_of_date")
+  // Should switch to @@id([companyId, metricId, asOfDate])
 
   @@index([companyId])
   @@map("company_score")
-  // Should switch to @@id([companyId, metricId, asOfDate])
 }
 
 model LatestCompanyScore {
@@ -99,11 +99,11 @@ model LatestCompanyScore {
   order          Int
   evaluationDate DateTime @map("evaluation_date")
   asOfDate       DateTime @map("as_of_date")
+  // Should switch to @@id([companyId, metricId])
+  // Note asOfDate is included for debugging, but there should only be one instance of a metric for a given company.
 
   @@index([companyId])
   @@map("latest_company_score")
-  // Should switch to @@id([companyId, metricId])
-  // Note asOfDate is included for debugging, but there should only be one instance of a metric for a given company.
 }
 
 model FundingRound {
@@ -149,4 +149,18 @@ model Investor {
 
   @@index([id])
   @@map("investor")
+}
+
+model CompanyRating {
+  id Int @id @default(autoincrement())
+  companyId Int      @map("company_id")
+  fit       Int
+  quality   Int
+  team      Int?
+  investor  Int?
+  reviewer  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("company_rating")
 }
