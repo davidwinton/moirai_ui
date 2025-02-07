@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, use } from "react";
+import { useParams } from "next/navigation";
+
 import { DefaultPageLayout } from "@/subframe/layouts/DefaultPageLayout";
 import { Badge } from "@/subframe/components/Badge";
 import { VerticalStepper } from "@/subframe/components/VerticalStepper";
@@ -208,7 +210,6 @@ const calculateCompanyScore = (company: HarmonicResponse) => {
   const averageLead = leads?.length ? leads.reduce((a: number, b: number) => a + b, 0) / leads.length : highestLead
   const averageFollower = followers?.length ? followers.reduce((a: number, b: number) => a + b, 0) / followers.length : highestFollower
 
-
   const isBlockchain = company.tags_v2.filter(tag => tag.type?.toLowerCase().includes('technology') && tag.display_value?.toLowerCase().includes('blockchain')).length > 0
   const isFinServ = company.tags_v2.filter(tag => tag.type?.toLowerCase().includes('market') && tag.display_value?.toLowerCase().includes('financial')).length > 0
 
@@ -241,14 +242,15 @@ const calculateCompanyScore = (company: HarmonicResponse) => {
 }
 
 
-function CompanyDetails({ params }: { params: { id: string } }) {
+function CompanyDetails() {
   const [company, setCompany] = useState<HarmonicResponse | null>(null);
   const [companyScores, setCompanyScores] = useState<CompanyScore | null>(null);
   const [defiDetails, setDefiDetails] = useState<DefiDetails | null>(null);
   const [ratings, setRatings] = useState<Ratings | null>(null);
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const id = params.id
+  const params = useParams();
+  const id = params?.id
 
   useEffect(() => {
 
@@ -383,7 +385,7 @@ function CompanyDetails({ params }: { params: { id: string } }) {
   }
 
   return (
-    <DefaultPageLayout>
+    
       <div className="flex h-full w-full flex-col items-start gap-4 bg-neutral-50 px-6 py-12 overflow-auto">
         <div className="flex w-full min-w-[320px] flex-col items-start gap-6 rounded-md border border-solid border-neutral-border bg-default-background px-6 py-6 shadow-sm mobile:w-full mobile:grow mobile:shrink-0 mobile:basis-0">
           <div className="flex w-full items-center justify-between">
@@ -580,10 +582,8 @@ function CompanyDetails({ params }: { params: { id: string } }) {
           </div>
           <div className="flex h-px w-full flex-none flex-col items-center gap-2 bg-neutral-200" />
           <div className="flex w-full grow shrink-0 basis-0 flex-col items-start gap-6">
-            {company.funding_rounds?.map((fundingRound) => (
-
-
-              <CustomTreeView>
+            {company.funding_rounds?.map((fundingRound, index) => (
+              <CustomTreeView key={index}>
                 <CustomTreeView.Folder label={toTitleCase(fundingRound.funding_round_type) + (fundingRound.announcement_date ? ' (' + formatDate(fundingRound.announcement_date, false) + ')' : '')} value={'$' + formatNumber(fundingRound.funding_amount)}>
                   <div className="flex w-full h-auto items-center justify-between">
                     <CustomTreeView.Item
@@ -707,7 +707,6 @@ function CompanyDetails({ params }: { params: { id: string } }) {
           </div>
         </div>
       </div>
-    </DefaultPageLayout>
   );
 }
 
