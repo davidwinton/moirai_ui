@@ -40,7 +40,7 @@ const getRatingBadge = (label: string, score: number | undefined) => {
     return <Badge key={'badge-' + label}>{label}</Badge>
   }
 
-  const variant = score > 8 ? 'success' : score > 6 ? 'neutral' : 'error';
+  const variant = score > 3 ? 'success' : score > 2 ? 'neutral' : 'error';
 
   return <Badge variant={variant}>{`${label}: ${score}`}</Badge>
 }
@@ -321,11 +321,24 @@ function CompanyDetails() {
           if (!response.ok) {
             console.log(response)
             setRatings(null)
+            return
+          }
+          const result: unknown  = await response.json();
+          if (typeof result !== 'object' || result === null) {
+              console.warn("Invalid ratings response: unknown");
+              setRatings(null);
+              return;
+              
           }
 
-          const data = await response.json() as Ratings
-          
-          setRatings(data)
+          const ratingsResponse = result as { success: boolean; data?: Ratings; message?: string }
+          if (!ratingsResponse.success || !ratingsResponse.data) {
+              console.warn("Invalid ratings response:", ratingsResponse.message || "No data field");
+              setRatings(null);
+              return;
+          }
+      
+          setRatings(ratingsResponse.data);
 
         } catch (err) {
           if (err instanceof Error) {
@@ -337,10 +350,7 @@ function CompanyDetails() {
         }
       }
 
-      
-
       fetchCompany()
-
     }
   }, [id])
 
@@ -370,8 +380,7 @@ function CompanyDetails() {
         return;
       }
 
-      const data = await response.json() as Ratings
-      
+      const data = await response.json().then((data) => data) as Ratings
       setRatings(data);
 
     } catch (err) {
@@ -401,7 +410,7 @@ function CompanyDetails() {
               </span>
 
             </div>
-            <RatingsButton onSubmit={updateRatings} />
+            <RatingsButton onSubmit={updateRatings} title={company.name} currentRatings={ratings || undefined}/>
             <div className="flex items-center gap-2">
               {!!ratings?.quality ? (getRatingBadge('Q', ratings?.quality)) : null}
               {!!ratings?.fit ? (getRatingBadge('F', ratings?.fit)) : null}

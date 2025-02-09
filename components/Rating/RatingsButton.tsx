@@ -5,14 +5,16 @@ import { Ratings } from 'types/types';
 type RatingsButtonProps = {
   
   onSubmit: (ratings: Ratings) => void; // Passed from the parent
+  title?: string;
+  currentRatings?: Ratings;
+
 };
 
-const RatingsButton: React.FC<RatingsButtonProps> = ({onSubmit}) => {
+const RatingsButton: React.FC<RatingsButtonProps> = ({onSubmit, title, currentRatings}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
-
 
   return (
     <div>
@@ -26,6 +28,8 @@ const RatingsButton: React.FC<RatingsButtonProps> = ({onSubmit}) => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onSubmit={onSubmit} // Pass custom submit handler
+        title={title}
+        currentRatings={currentRatings}
       />
     </div>
   );
