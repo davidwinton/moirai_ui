@@ -37,7 +37,7 @@ const getRatingBadge = (label: string, score: number | undefined) => {
         return <Badge key={'badge-' + label}>{label}</Badge>
     }
 
-    const variant = score > 8 ? 'success' : score > 6 ? 'neutral' : 'error';
+    const variant = score > 3 ? 'success' : score > 2 ? 'neutral' : 'error';
 
     return <Badge variant={variant}>{`${label}: ${score}`}</Badge>
 }
@@ -272,28 +272,41 @@ const CompanyDetails: React.FC<DetailsParams> = ({ id }) => {
                     setIsLoading(false)
                 }
             }
-
             const fetchRatings = async () => {
                 try {
-                    const response = await fetch(`/api/ratings/${id}`)
-
-                    if (!response.ok) {
-                        console.log(response)
-                        setRatings(null)
-                    }
-
-                    const data = await response.json() as Ratings
-                    setRatings(data)
-
+                  const response = await fetch(`/api/ratings/${id}`)
+        
+                  if (!response.ok) {
+                    console.log(response)
+                    setRatings(null)
+                    return
+                  }
+                  const result: unknown  = await response.json();
+                  if (typeof result !== 'object' || result === null) {
+                      console.warn("Invalid ratings response: unknown");
+                      setRatings(null);
+                      return;
+                      
+                  }
+        
+                  const ratingsResponse = result as { success: boolean; data?: Ratings; message?: string }
+                  if (!ratingsResponse.success || !ratingsResponse.data) {
+                      console.warn("Invalid ratings response:", ratingsResponse.message || "No data field");
+                      setRatings(null);
+                      return;
+                  }
+              
+                  setRatings(ratingsResponse.data);
+        
                 } catch (err) {
-                    if (err instanceof Error) {
-                        console.error(err.message)
-                    }
-                    else {
-                        console.error('Something went wrong with DefiLlama integration')
-                    }
+                  if (err instanceof Error) {
+                    console.error(err.message)
+                  }
+                  else {
+                    console.error('Something went wrong with DefiLlama integration')
+                  }
                 }
-            }
+              }
 
             fetchCompany()
 
