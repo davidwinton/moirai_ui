@@ -8,7 +8,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "components/ui/DropDownMenu"
-import { SignIn, SignOut } from "components/AuthComponents/AuthComponents"
+import { SignIn, SignOut } from "components/AuthComponents"
 
 
 interface Session {

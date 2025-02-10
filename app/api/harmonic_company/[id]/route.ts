@@ -19,7 +19,7 @@ export async function GET ( request: NextFetchRequestConfig, { params }: { param
     return NextResponse.json(cachedData); 
   }
   const apikey = process.env.NEXT_PUBLIC_HARMONIC_API_KEY;
-  //{ params }: { params: { id: string } }) { const { id } = params; const apikey = process.env.HARMONIC_API_KEY; const companyId = id; const params = {}) => {
+  
   try {
     const response = await axios.get(HARMONIC_API_URL + 'companies/' + id, {
       headers: {

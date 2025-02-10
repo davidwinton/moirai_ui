@@ -5,7 +5,7 @@ import { VerticalStepper } from "@/subframe/components/VerticalStepper";
 import * as SubframeCore from "@subframe/core";
 import React, { useEffect, useState } from "react";
 import { HarmonicInvestor, HarmonicResponse } from "types/harmonicResponse";
-import RatingsButton from "components/Rating/RatingsButton";
+import RatingsButton from "components/RatingsButton";
 import Link from "next/link";
 import { Ratings } from "types/types";
 

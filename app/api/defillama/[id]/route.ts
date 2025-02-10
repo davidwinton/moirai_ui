@@ -10,7 +10,7 @@ const DEFI_LLAMA_API_URL = 'https://api.llama.fi/updatedProtocol/';
  */
 
 export async function GET ( request: NextFetchRequestConfig, { params }: { params: { id: string }}) {
-  const { id } = params;
+  const { id } = await params;
   try {
     const response = await axios.get(DEFI_LLAMA_API_URL + id, {
       headers: {

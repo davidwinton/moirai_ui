@@ -1,7 +1,8 @@
 "use client"; // ✅ This makes NavBar a Client Component
 
 import Link from "next/link";
-import UserButton from "components/UserButton/UserButton"; // ✅ Import UserButton
+import UserButton from "components/UserButton"; // ✅ Import UserButton
+import SearchComponent from "components/Search";
 
 interface Session {
     user?: {
@@ -24,11 +25,7 @@ export default function NavBar({ session }: { session: Session | null }) {
 
             {/* Center - Search Bar */}
             <div className="w-1/3">
-                <input
-                    type="text"
-                    placeholder="Quick Search..."
-                    className="w-full p-2 border rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                <SearchComponent />
             </div>
 
             {/* Right - User Button */}

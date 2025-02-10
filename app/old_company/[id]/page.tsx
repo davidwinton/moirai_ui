@@ -14,7 +14,7 @@ import { Avatar } from "@/subframe/components/Avatar";
 import { Button } from "@/subframe/components/Button";
 import { Label } from "@subframe/core/dist/cjs/components/radix/context-menu";
 import { get } from "http";
-import InvestorsList from "components/InvestorList/InvestorList";
+import InvestorsList from "components/InvestorList";
 
 type Score = {
   metric: string;
