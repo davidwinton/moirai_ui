@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import SearchResult from 'components/SearchResult/SearchResult';
+import SearchResult from 'components/SearchResult';
 import { HarmonicResponse } from 'types/harmonicResponse';
 import { TextField } from "components/subframe/components/TextField";
 
@@ -73,17 +73,6 @@ const SearchComponent: React.FC = () => {
 
     return (
         <div className="relative">
-            {/* Search Box */}
-            {/* <TextField
-            className="h-auto grow shrink-0 basis-0"
-            variant="filled"
-            label=""
-            helpText=""
-            icon="FeatherSearch"
-            
-          >
-            <TextField.Input placeholder="Quick Search" />
-          </TextField> */}
             <input
                 type="text"
                 value={query}

@@ -1,5 +1,5 @@
 import "styles/tailwind.css"
-import NavBar from "components/NavBar/NavBar";
+import NavBar from "components/NavBar";
 import {auth } from "auth"
 import { SessionProvider } from "next-auth/react"
 
@@ -19,6 +19,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+      </head>
       <body>
         <SessionProvider session={session}>
 

@@ -4,7 +4,7 @@ import { Ratings } from 'types/types';
 import prisma from 'lib/prisma';
 
 export async function GET(request: NextFetchRequestConfig, { params }: { params: { id: string } }) {
-  const { id } = params;
+  const { id } = await params;
 
   const session = await auth();
 
