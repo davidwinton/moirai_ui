@@ -5,7 +5,7 @@ import { VerticalStepper } from "@/subframe/components/VerticalStepper";
 import * as SubframeCore from "@subframe/core";
 import React, { useEffect, useState } from "react";
 import { HarmonicInvestor, HarmonicResponse } from "types/harmonicResponse";
-import RatingsButton from "components/Rating/RatingsButton";
+import RatingsButton from "components/RatingsButton";
 import Link from "next/link";
 import { Ratings, CompanyScore, Score } from "types/types";
 
@@ -517,7 +517,7 @@ const CompanyDetails: React.FC<DetailsParams> = ({ id }) => {
                                     Headcount
                                 </span>
                             </div>
-                            {getPercentageSpan(company.traction_metrics.headcount?.["90d_ago"]?.percent_change)}
+                            {getPercentageSpan(company.traction_metrics?.headcount?.["90d_ago"]?.percent_change)}
                         </div>
                         <div className="flex grow shrink-0 basis-0 flex-col items-end gap-2 px-1 py-1">
                             <div className="flex items-center gap-2">
