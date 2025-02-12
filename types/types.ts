@@ -1,3 +1,5 @@
+import { Liquidity } from "types/defiLlamaResponse"
+
 export type Ratings = {
   quality: number
   fit: number
@@ -19,4 +21,26 @@ export type CompanyScore = {
   investors?: Score | undefined
   mandateFit?: Score | undefined
   subscores?: Score[] | undefined
+}
+
+export type Investor = {
+  name: string
+  logoUrl?: string | undefined
+  websiteUrl?: string | undefined
+  description?: string | undefined
+  rank?: number | undefined
+  relevance?: number | undefined
+}
+
+export type DefiDetails = {
+  tvl: number | undefined
+  tvlHistory: Liquidity[] | undefined
+}
+
+export interface Session {
+    user?: {
+        name?: string | null
+        email?: string | null
+        image?: string | null
+    }
 }

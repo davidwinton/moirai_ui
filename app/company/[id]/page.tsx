@@ -2,9 +2,8 @@
 
 import * as SubframeCore from "@subframe/core"
 import Head from "next/head"
-import { useParams } from "next/navigation"
-import { notFound } from "next/navigation"
-import React, { use, useEffect, useState } from "react"
+import { notFound, useParams } from "next/navigation"
+import { useEffect, useState } from "react"
 
 import { Badge } from "@/subframe/components/Badge"
 import { CustomTreeView } from "@/subframe/components/CustomTreeView"
@@ -12,15 +11,12 @@ import { VerticalStepper } from "@/subframe/components/VerticalStepper"
 import InvestorsList from "components/InvestorList"
 import MetricChart from "components/MetricChart"
 import RatingsButton from "components/RatingsButton"
-import { Liquidity, Protocol } from "types/defiLlamaResponse"
+import { formatDate, formatNumber, formatPercentage, getInvestorRank, toTitleCase } from "lib/utils"
+import { Protocol } from "types/defiLlamaResponse"
 import { HarmonicInvestor, HarmonicResponse } from "types/harmonicResponse"
 
-import { CompanyScore, Ratings, Score } from "types/types"
-
-type DefiDetails = {
-  tvl: number | undefined
-  tvlHistory: Liquidity[] | undefined
-}
+import type { DefiDetails, Investor } from "types/types"
+import { CompanyScore, Ratings } from "types/types"
 
 const score_list = [
   56556915, 53938838, 18656035, 43276461, 10195420, 55016033, 47467530, 56362167, 23491747, 7584821, 21776594, 4211342,
@@ -56,56 +52,7 @@ const getRatingBadge = (label: string, score: number | undefined) => {
   return <Badge variant={variant}>{`${label}: ${score}`}</Badge>
 }
 
-const toTitleCase = (str: string) => {
-  if (!str) {
-    return ""
-  }
-  return str
-    .toLowerCase()
-    .replace("_", " ")
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ")
-}
-
-const formatDate = (date: string, justYear: boolean) => {
-  if (justYear) {
-    return new Date(date).toLocaleDateString("en-US", {
-      year: "numeric",
-    })
-  }
-  return new Date(date).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })
-}
-const formatNumber = (amount: number | null | undefined) => {
-  if (!amount) {
-    return "N/A"
-  }
-
-  const suffixes = ["", "k", "m", "b", "t"] // k = thousand, m = million, etc.
-  const tier = Math.floor(Math.log10(Math.abs(amount)) / 3) // Determine the tier (thousands, millions, etc.)
-
-  if (tier === 0) {
-    return `$${amount}` // No suffix for values below 1,000
-  }
-
-  const scaled = amount / Math.pow(1000, tier) // Scale the number to the tier
-  const suffix = suffixes[tier] // Get the appropriate suffix
-
-  return `${scaled.toFixed(1)}${suffix}` // Format to 1 decimal place
-}
-
-const formatPercentage = (amount: number | undefined) => {
-  if (!amount) {
-    return "N/A"
-  }
-  return `${amount}%`
-}
-
-const getPercentageSpan = (amount: number | null | undefined) => {
+export const getPercentageSpan = (amount: number | null | undefined) => {
   if (!amount) {
     return <span className="font-body text-body text-neutral-400">N/A</span>
   }
@@ -116,73 +63,6 @@ const getPercentageSpan = (amount: number | null | undefined) => {
   return <span className="font-body text-body text-error-700">{formatPercentage(amount)}</span>
 }
 
-const tier_1 = [
-  "maven capital",
-  "a16z crypto",
-  "binance labs",
-  "digital currency group",
-  "animoca brands",
-  "animoca ventures",
-  "andreessen horowitz",
-  "pantera capital",
-  "coinbase",
-  "sequoia capital",
-  "paradigm",
-  "polychain capital",
-  "lightspeed venture partners",
-]
-
-const tier_2 = [
-  "dragonfly",
-  "framework ventures",
-  "1kx",
-  "delphi digital",
-  "spartan group",
-  "mechanism capital",
-  "hashed",
-  "union square ventures",
-  "galaxy digital",
-  "blockchain capital",
-]
-
-const tier_3 = [
-  "metastable capital",
-  "gumi cryptos",
-  "1confirmation",
-  "arrington xrp capital",
-  "fbg capital",
-  "protocol ventures",
-  "blueyard capital",
-  "fenbushi capital",
-  "consensys ventures",
-  "placeholder vc",
-  "electric capital",
-  "boost vc",
-  "blocktower capital",
-]
-
-const getInvestorRank = (investor: string) => {
-  const inv_lower = investor.toLowerCase()
-  if (tier_1.includes(inv_lower)) {
-    return 1
-  }
-  if (tier_2.includes(inv_lower)) {
-    return 2
-  }
-  if (tier_3.includes(inv_lower)) {
-    return 3
-  }
-  return 0
-}
-
-type Investor = {
-  name: string
-  logoUrl?: string | undefined
-  websiteUrl?: string | undefined
-  description?: string | undefined
-  rank?: number | undefined
-  relevance?: number | undefined
-}
 const getLeads = (investors: HarmonicInvestor[] | null): Investor[] => {
   if (!investors) {
     return []
@@ -556,7 +436,7 @@ function CompanyDetails() {
               <span className="font-body text-body text-default-font">
                 {formatNumber(
                   (company?.traction_metrics?.web_traffic["30d_ago"]?.value || 0) +
-                    (company?.traction_metrics?.web_traffic["30d_ago"]?.change || 0)
+                  (company?.traction_metrics?.web_traffic["30d_ago"]?.change || 0)
                 )}
               </span>
             </div>
@@ -582,26 +462,23 @@ function CompanyDetails() {
                   value={"$" + formatNumber(fundingRound.funding_amount)}
                 >
                   <div className="flex h-auto w-full items-center justify-between">
-                    <CustomTreeView.Item className="size-auto flex-none" label="Leads" value="" />
-
-                    <div className="flex shrink-0 grow basis-0 flex-col items-end gap-2 p-1">
-                      <div className="flex shrink-0 grow basis-0 flex-col items-start gap-2 p-1">
+                    <CustomTreeView.Item className="size-auto" label="Leads" value={
+                      <div className="flex w-full shrink-0 grow basis-0 flex-col items-start gap-2 p-1 justify-end">
                         {getLeads(fundingRound?.investors) ? (
                           <InvestorsList investors={getLeads(fundingRound?.investors)} />
                         ) : null}
                       </div>
-                    </div>
+                    } />
                   </div>
                   <div className="flex h-auto w-full items-center justify-between">
-                    <CustomTreeView.Item className="size-auto flex-none" label="Followers" value="" />
-
-                    <div className="flex shrink-0 grow basis-0 flex-col items-end gap-2 p-1">
+                    <CustomTreeView.Item className="size-auto" label="Followers" value={
                       <div className="flex shrink-0 grow basis-0 flex-col items-start gap-2 p-1">
                         {getFollowers(fundingRound?.investors) ? (
                           <InvestorsList investors={getFollowers(fundingRound?.investors)} />
                         ) : null}
                       </div>
-                    </div>
+                    } />
+
                   </div>
                 </CustomTreeView.Folder>
               </CustomTreeView>
@@ -663,19 +540,6 @@ function CompanyDetails() {
                 )}
               </div>
               <div className="flex shrink-0 grow basis-0 flex-col items-start gap-4">
-                {/* <div className="flex w-full flex-col items-start gap-4">
-                  <span className="text-heading-3 font-heading-3 text-default-font">
-                    Trends
-                  </span>
-                  <div className="flex w-full flex-col items-start gap-4 rounded-md border border-solid border-neutral-border bg-default-background px-4 py-4 shadow-sm">
-                    <div className="flex h-52 w-full flex-none items-center gap-2">
-                      <img
-                        className="grow shrink-0 basis-0 self-stretch object-contain"
-                        src="https://res.cloudinary.com/subframe/image/upload/v1725509614/uploads/3896/cfk1kpxb8mytv94hqvej.png"
-                      />
-                    </div>
-                  </div>
-                </div> */}
                 {defiDetails?.tvlHistory ? (
                   <>
                     <span className="font-heading-3 text-heading-3 text-default-font">TVL</span>
@@ -709,7 +573,7 @@ function CompanyDetails() {
             </div>
           </div>
         </div>
-      </div>
+      </div >
     </>
   )
 }

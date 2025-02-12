@@ -6,17 +6,9 @@ import React, { useEffect, useState } from "react"
 import { Badge } from "@/subframe/components/Badge"
 import { VerticalStepper } from "@/subframe/components/VerticalStepper"
 import RatingsButton from "components/RatingsButton"
-import { HarmonicInvestor, HarmonicResponse } from "types/harmonicResponse"
-import { CompanyScore, Ratings, Score } from "types/types"
-
-type DefiDetails = {
-  businessTyoe: string | undefined
-  tvl: number | undefined
-}
-
-const getScores = (company: HarmonicResponse) => {
-  const scores = []
-}
+import { formatDate, formatNumber, formatPercentage, getInvestorRank, toTitleCase } from "lib/utils"
+import { HarmonicResponse } from "types/harmonicResponse"
+import { CompanyScore, DefiDetails, Ratings } from "types/types"
 
 const getBadge = (label: string, score: number | undefined) => {
   if (!score) {
@@ -111,47 +103,6 @@ const calculateCompanyScore = (company: HarmonicResponse) => {
   return scores
 }
 
-const toTitleCase = (str: string) => {
-  return str
-    .toLowerCase()
-    .replace("_", "-")
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ")
-}
-
-const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })
-}
-const formatNumber = (amount: number | null | undefined) => {
-  if (!amount) {
-    return "N/A"
-  }
-
-  const suffixes = ["", "k", "m", "b", "t"] // k = thousand, m = million, etc.
-  const tier = Math.floor(Math.log10(Math.abs(amount)) / 3) // Determine the tier (thousands, millions, etc.)
-
-  if (tier === 0) {
-    return `$${amount}` // No suffix for values below 1,000
-  }
-
-  const scaled = amount / Math.pow(1000, tier) // Scale the number to the tier
-  const suffix = suffixes[tier] // Get the appropriate suffix
-
-  return `${scaled.toFixed(1)}${suffix}` // Format to 1 decimal place
-}
-
-const formatPercentage = (amount: number | undefined) => {
-  if (!amount) {
-    return "N/A"
-  }
-  return `${amount}%`
-}
-
 const getPercentageSpan = (amount: number | null | undefined) => {
   if (!amount) {
     return <span className="font-body text-body text-neutral-400">N/A</span>
@@ -161,106 +112,6 @@ const getPercentageSpan = (amount: number | null | undefined) => {
   }
 
   return <span className="font-body text-body text-error-700">{formatPercentage(amount)}</span>
-}
-
-const tier_1 = [
-  "Maven Capital",
-  "a16z crypto",
-  "binance labs",
-  "digital currency group",
-  "animoca brands",
-  "animoca ventures",
-  "Andreessen Horowitz",
-  "Pantera Capital",
-  "Coinbase",
-  "Sequoia Capital",
-  "Paradigm",
-  "Polychain Capital",
-  "Lightspeed Venture Partners",
-]
-
-const tier_2 = [
-  "Dragonfly",
-  "Framework Ventures",
-  "1kx",
-  "Delphi Digital",
-  "Spartan Group",
-  "Mechanism Capital",
-  "Hashed",
-  "Union Square Ventures",
-  "Galaxy Digital",
-  "Blockchain Capital",
-]
-
-const tier_3 = [
-  "MetaStable Capital",
-  "Gumi Cryptos",
-  "1confirmation",
-  "Arrington XRP Capital",
-  "FBG Capital",
-  "Protocol Ventures",
-  "BlueYard Capital",
-  "Fenbushi Capital",
-  "ConsenSys Ventures",
-  "Placeholder VC",
-  "Electric Capital",
-  "Boost VC",
-  "BlockTower Capital",
-]
-
-const getInvestorRank = (investor: string) => {
-  if (tier_1.includes(investor)) {
-    return 1
-  }
-  if (tier_2.includes(investor)) {
-    return 2
-  }
-  if (tier_3.includes(investor)) {
-    return 3
-  }
-  return 0
-}
-
-type Investor = {
-  name: string
-  logoUrl?: string | undefined
-  websiteUrl?: string | undefined
-  description?: string | undefined
-  rank?: number | undefined
-  relevance?: number | undefined
-}
-const getLeads = (investors: HarmonicInvestor[] | null): Investor[] => {
-  if (!investors) {
-    return []
-  }
-
-  return (
-    investors
-      .filter((investor) => investor.is_lead)
-      ?.map((investor) => {
-        return {
-          name: investor.investor_name,
-          rank: getInvestorRank(investor.investor_name),
-        }
-      }) || []
-  )
-}
-
-const getFollowers = (investors: HarmonicInvestor[] | null): Investor[] => {
-  if (!investors) {
-    return []
-  }
-
-  return (
-    investors
-      .filter((investor) => !investor.is_lead)
-      ?.map((investor) => {
-        return {
-          name: investor.investor_name,
-          rank: getInvestorRank(investor.investor_name),
-        }
-      }) || []
-  )
 }
 
 type DetailsParams = {
@@ -455,7 +306,7 @@ const CompanyDetails: React.FC<DetailsParams> = ({ id }) => {
                 <span className="font-body text-body text-default-font">Founded</span>
               </div>
               <span className="font-body text-body text-default-font">
-                {formatDate(company.founding_date.date) ?? company.founding_date.date}
+                {formatDate(company.founding_date.date, false) ?? company.founding_date.date}
               </span>
             </div>
             <div className="flex shrink-0 grow basis-0 flex-col items-end gap-2 p-1">
