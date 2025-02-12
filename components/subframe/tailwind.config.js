@@ -154,8 +154,7 @@ module.exports = {
         default: "0px 1px 2px 0px rgba(0, 0, 0, 0.05)",
         md: "0px 4px 16px -2px rgba(0, 0, 0, 0.08), 0px 2px 4px -1px rgba(0, 0, 0, 0.08)",
         lg: "0px 12px 32px -4px rgba(0, 0, 0, 0.08), 0px 4px 8px -2px rgba(0, 0, 0, 0.08)",
-        overlay:
-          "0px 12px 32px -4px rgba(0, 0, 0, 0.08), 0px 4px 8px -2px rgba(0, 0, 0, 0.08)",
+        overlay: "0px 12px 32px -4px rgba(0, 0, 0, 0.08), 0px 4px 8px -2px rgba(0, 0, 0, 0.08)",
       },
       borderRadius: {
         sm: "4px",
@@ -188,4 +187,4 @@ module.exports = {
       },
     },
   },
-};
+}
