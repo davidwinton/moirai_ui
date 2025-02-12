@@ -1,15 +1,13 @@
-import NextAuth from "next-auth";
+import NextAuth from "next-auth"
 import "next-auth/jwt"
 
-import Google from "next-auth/providers/google";
+import Google from "next-auth/providers/google"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-    providers: [
-        Google,
-    ],
-    basePath: "/api/auth",
-    session: { strategy: "jwt" },
-     callbacks: {
+  providers: [Google],
+  basePath: "/api/auth",
+  session: { strategy: "jwt" },
+  callbacks: {
     authorized({ request, auth }) {
       const { pathname } = request.nextUrl
       if (pathname === "/middleware-example") return !!auth
@@ -32,16 +30,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   experimental: { enableWebAuthn: true },
 })
-  
-  
-  declare module "next-auth" {
-    interface Session {
-      accessToken?: string
-    }
+
+declare module "next-auth" {
+  interface Session {
+    accessToken?: string
   }
-  
-  declare module "next-auth/jwt" {
-    interface JWT {
-      accessToken?: string
-    }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    accessToken?: string
   }
+}
