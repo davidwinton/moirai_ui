@@ -24,9 +24,9 @@ const InvestorsList: React.FC<InvestorsListProps> = ({ investors }) => {
   }
 
   return (
-    <div className="flex w-full items-center gap-1">
+    <div className="flex flex-wrap w-full items-center gap-x-2 gap-y-1 justify-end">
       {investors.map((investor, index) => (
-        <span key={investor.name} className={`${getColorClass(investor.rank)} block`}>
+        <span key={investor.name + index} className={`${getColorClass(investor.rank)} block`}>
           {investor.name}
           {index < investors.length - 1 && ","}
         </span>

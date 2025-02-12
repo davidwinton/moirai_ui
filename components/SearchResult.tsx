@@ -7,13 +7,6 @@ import { VerticalStepper } from "@/subframe/components/VerticalStepper"
 import { HarmonicResponse } from "types/harmonicResponse"
 import { Ratings } from "types/types"
 
-type Score = {
-  metric: string
-  score: number | undefined
-  category: string | undefined
-  orderId: number | undefined
-}
-
 const getRatingBadge = (label: string, score: number | undefined) => {
   if (!score) {
     return <Badge key={"badge-" + label}>{label}</Badge>
@@ -30,65 +23,6 @@ const scores = [
   4116225, 12760858, 56739311, 57028703, 53927583, 41922392, 3081893, 56244584, 12587815, 31723608, 19390514, 38808915,
   55218902, 3863172, 56731501, 55560540,
 ]
-
-const tier_1 = [
-  "Maven Capital",
-  "a16z crypto",
-  "binance labs",
-  "digital currency group",
-  "animoca brands",
-  "animoca ventures",
-  "Andreessen Horowitz",
-  "Pantera Capital",
-  "Coinbase",
-  "Sequoia Capital",
-  "Paradigm",
-  "Polychain Capital",
-  "Lightspeed Venture Partners",
-]
-
-const tier_2 = [
-  "Dragonfly",
-  "Framework Ventures",
-  "1kx",
-  "Delphi Digital",
-  "Spartan Group",
-  "Mechanism Capital",
-  "Hashed",
-  "Union Square Ventures",
-  "Galaxy Digital",
-  "Blockchain Capital",
-]
-
-const tier_3 = [
-  "MetaStable Capital",
-  "Gumi Cryptos",
-  "1confirmation",
-  "Arrington XRP Capital",
-  "FBG Capital",
-  "Protocol Ventures",
-  "BlueYard Capital",
-  "Fenbushi Capital",
-  "ConsenSys Ventures",
-  "Placeholder VC",
-  "Electric Capital",
-  "Boost VC",
-  "BlockTower Capital",
-]
-
-const getInvestorRank = (investor: string) => {
-  if (tier_1.includes(investor)) {
-    return 1
-  }
-  if (tier_2.includes(investor)) {
-    return 2
-  }
-  if (tier_3.includes(investor)) {
-    return 3
-  }
-  return 0
-}
-
 
 type SearchResultParam = {
   company: HarmonicResponse
