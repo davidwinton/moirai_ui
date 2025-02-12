@@ -8,14 +8,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "components/ui/DropDownMenu"
-
-interface Session {
-  user?: {
-    name?: string
-    email?: string
-    image?: string
-  }
-}
+import { Session } from "types/types"
 
 export default function UserButton({ session }: { session: Session | null }) {
   if (!session?.user) return <SignIn provider="google" />

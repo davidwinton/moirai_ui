@@ -1,4 +1,3 @@
-import { DefaultPageLayout } from "@/subframe/layouts/DefaultPageLayout"
 import CompanyDetails from "components/CompanyDetail"
 
 // Define the list page
