@@ -1,4 +1,4 @@
-"use client";
+"use client"
 /*
  * Documentation:
  * Topbar with center search — https://app.subframe.com/007b7d1e11bb/library?component=Topbar+with+center+search_3bd79561-0143-4651-931b-3b7260b0b798
@@ -7,24 +7,18 @@
  * Avatar — https://app.subframe.com/007b7d1e11bb/library?component=Avatar_bec25ae6-5010-4485-b46b-cf79e3943ab2
  */
 
-import React from "react";
-import * as SubframeCore from "@subframe/core";
+import * as SubframeCore from "@subframe/core"
+import React from "react"
 
 interface NavItemProps extends React.HTMLAttributes<HTMLDivElement> {
-  selected?: boolean;
-  icon?: SubframeCore.IconName;
-  children?: string;
-  className?: string;
+  selected?: boolean
+  icon?: SubframeCore.IconName
+  children?: string
+  className?: string
 }
 
 const NavItem = React.forwardRef<HTMLElement, NavItemProps>(function NavItem(
-  {
-    selected = false,
-    icon = null,
-    children,
-    className,
-    ...otherProps
-  }: NavItemProps,
+  { selected = false, icon = null, children, className, ...otherProps }: NavItemProps,
   ref
 ) {
   return (
@@ -40,16 +34,15 @@ const NavItem = React.forwardRef<HTMLElement, NavItemProps>(function NavItem(
       {...otherProps}
     >
       <SubframeCore.Icon
-        className={SubframeCore.twClassNames(
-          "text-heading-3 font-heading-3 text-subtext-color",
-          { "text-default-font": selected }
-        )}
+        className={SubframeCore.twClassNames("font-heading-3 text-heading-3 text-subtext-color", {
+          "text-default-font": selected,
+        })}
         name={icon}
       />
       {children ? (
         <span
           className={SubframeCore.twClassNames(
-            "text-body-bold font-body-bold text-subtext-color group-hover/e5d1ce67:text-subtext-color",
+            "font-body-bold text-body-bold text-subtext-color group-hover/e5d1ce67:text-subtext-color",
             {
               "text-default-font group-hover/e5d1ce67:text-default-font group-active/e5d1ce67:text-default-font":
                 selected,
@@ -60,61 +53,42 @@ const NavItem = React.forwardRef<HTMLElement, NavItemProps>(function NavItem(
         </span>
       ) : null}
     </div>
-  );
-});
+  )
+})
 
-interface TopbarWithCenterSearchRootProps
-  extends React.HTMLAttributes<HTMLElement> {
-  leftSlot?: React.ReactNode;
-  centerSlot?: React.ReactNode;
-  rightSlot?: React.ReactNode;
-  className?: string;
+interface TopbarWithCenterSearchRootProps extends React.HTMLAttributes<HTMLElement> {
+  leftSlot?: React.ReactNode
+  centerSlot?: React.ReactNode
+  rightSlot?: React.ReactNode
+  className?: string
 }
 
-const TopbarWithCenterSearchRoot = React.forwardRef<
-  HTMLElement,
-  TopbarWithCenterSearchRootProps
->(function TopbarWithCenterSearchRoot(
-  {
-    leftSlot,
-    centerSlot,
-    rightSlot,
-    className,
-    ...otherProps
-  }: TopbarWithCenterSearchRootProps,
-  ref
-) {
-  return (
-    <nav
-      className={SubframeCore.twClassNames(
-        "flex w-full items-center gap-4 bg-default-background px-6 py-6",
-        className
-      )}
-      ref={ref as any}
-      {...otherProps}
-    >
-      {leftSlot ? (
-        <div className="flex grow shrink-0 basis-0 items-center gap-6">
-          {leftSlot}
-        </div>
-      ) : null}
-      {centerSlot ? (
-        <div className="flex grow shrink-0 basis-0 items-center justify-center gap-4">
-          {centerSlot}
-        </div>
-      ) : null}
-      {rightSlot ? (
-        <div className="flex grow shrink-0 basis-0 items-center justify-end gap-2">
-          {rightSlot}
-        </div>
-      ) : null}
-    </nav>
-  );
-});
-
-export const TopbarWithCenterSearch = Object.assign(
-  TopbarWithCenterSearchRoot,
-  {
-    NavItem,
+const TopbarWithCenterSearchRoot = React.forwardRef<HTMLElement, TopbarWithCenterSearchRootProps>(
+  function TopbarWithCenterSearchRoot(
+    { leftSlot, centerSlot, rightSlot, className, ...otherProps }: TopbarWithCenterSearchRootProps,
+    ref
+  ) {
+    return (
+      <nav
+        className={SubframeCore.twClassNames(
+          "flex w-full items-center gap-4 bg-default-background px-6 py-6",
+          className
+        )}
+        ref={ref as any}
+        {...otherProps}
+      >
+        {leftSlot ? <div className="flex shrink-0 grow basis-0 items-center gap-6">{leftSlot}</div> : null}
+        {centerSlot ? (
+          <div className="flex shrink-0 grow basis-0 items-center justify-center gap-4">{centerSlot}</div>
+        ) : null}
+        {rightSlot ? (
+          <div className="flex shrink-0 grow basis-0 items-center justify-end gap-2">{rightSlot}</div>
+        ) : null}
+      </nav>
+    )
   }
-);
+)
+
+export const TopbarWithCenterSearch = Object.assign(TopbarWithCenterSearchRoot, {
+  NavItem,
+})

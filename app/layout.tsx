@@ -1,10 +1,10 @@
 import "styles/tailwind.css"
-import NavBar from "components/NavBar";
-import {auth } from "auth"
 import { SessionProvider } from "next-auth/react"
+import { auth } from "auth"
+import NavBar from "components/NavBar"
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth(); // Fetch session from the server
+  const session = await auth() // Fetch session from the server
 
   if (session?.user) {
     // TODO: Look into https://react.dev/reference/react/experimental_taintObjectReference
@@ -16,7 +16,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     }
   }
 
-
   return (
     <html lang="en">
       <head>
@@ -26,11 +25,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body>
         <SessionProvider session={session}>
-
-        <NavBar session={session} />
-        {session?.user ? <main>{children}</main> : null}
+          <NavBar session={session} />
+          {session?.user ? <main>{children}</main> : null}
         </SessionProvider>
-        </body>
+      </body>
     </html>
   )
 }

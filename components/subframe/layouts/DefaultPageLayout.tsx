@@ -32,7 +32,6 @@
 //   ref
 // ) {
 
-
 //   return (
 //     <div
 //       className={SubframeCore.twClassNames(
@@ -79,7 +78,7 @@
 //           <div className="h-auto grow shrink-0 basis-0">
 // <SearchComponent />
 //           </div>
-          
+
 //         }
 //         rightSlot={
 //           <>
@@ -104,7 +103,7 @@
 //                     </DropdownMenu.DropdownItem>
 //                     <DropdownMenu.DropdownItem icon="FeatherSettings">
 //                       Settings
-                      
+
 //                     </DropdownMenu.DropdownItem>
 //                     <DropdownMenu.DropdownItem icon="FeatherLogOut">
 //                       Log out
@@ -126,64 +125,60 @@
 // });
 
 // export const DefaultPageLayout = DefaultPageLayoutRoot;
-"use client";
+"use client"
 
-import { signIn, signOut } from "auth";
-import Link from "next/link";
+import Link from "next/link"
+import { signIn, signOut } from "auth"
 
 interface UserSession {
   user?: {
-    name?: string;
-    email?: string;
-    image?: string;
-  };
+    name?: string
+    email?: string
+    image?: string
+  }
 }
 
 export function DefaultPageLayout({ session }: { session: UserSession | null }) {
-    return (
-        <nav className="flex items-center justify-between p-4 shadow-md bg-white">
-            {/* Left Side - Logo and Navigation */}
-            <div className="flex items-center gap-6">
-                <img className="h-8 w-auto" src="/images/MoiraiLogo.png" alt="Logo" />
-                <Link href="/company_list/1" className="text-gray-700 hover:underline">
-                    Moirai
-                </Link>
-                <Link href="/company_list/1" className="text-gray-700 hover:underline">
-                    Recommendations
-                </Link>
-                <Link href="/search" className="text-gray-700 hover:underline">
-                    Search
-                </Link>
-            </div>
+  return (
+    <nav className="flex items-center justify-between bg-white p-4 shadow-md">
+      {/* Left Side - Logo and Navigation */}
+      <div className="flex items-center gap-6">
+        <img className="h-8 w-auto" src="/images/MoiraiLogo.png" alt="Logo" />
+        <Link href="/company_list/1" className="text-gray-700 hover:underline">
+          Moirai
+        </Link>
+        <Link href="/company_list/1" className="text-gray-700 hover:underline">
+          Recommendations
+        </Link>
+        <Link href="/search" className="text-gray-700 hover:underline">
+          Search
+        </Link>
+      </div>
 
-            {/* Center - Search Bar */}
-            <div className="w-1/3">
-                <input
-                    type="text"
-                    placeholder="Quick Search..."
-                    className="w-full p-2 border rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-            </div>
+      {/* Center - Search Bar */}
+      <div className="w-1/3">
+        <input
+          type="text"
+          placeholder="Quick Search..."
+          className="w-full rounded-lg border bg-gray-100 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
 
-            {/* Right Side - Login Button or Avatar */}
-            <div>
-                {session?.user?.image ? (
-                    <button onClick={() => signOut()}>
-                        <img
-                            src={session.user.image}
-                            alt="User Avatar"
-                            className="h-10 w-10 rounded-full border"
-                        />
-                    </button>
-                ) : (
-                    <button
-                        onClick={() => signIn("google")}
-                        className="px-4 py-2 border rounded-lg text-blue-500 hover:bg-blue-100"
-                    >
-                        Log In
-                    </button>
-                )}
-            </div>
-        </nav>
-    );
+      {/* Right Side - Login Button or Avatar */}
+      <div>
+        {session?.user?.image ? (
+          <button onClick={() => signOut()}>
+            <img src={session.user.image} alt="User Avatar" className="size-10 rounded-full border" />
+          </button>
+        ) : (
+          <button
+            onClick={() => signIn("google")}
+            className="rounded-lg border px-4 py-2 text-blue-500 hover:bg-blue-100"
+          >
+            Log In
+          </button>
+        )}
+      </div>
+    </nav>
+  )
 }
