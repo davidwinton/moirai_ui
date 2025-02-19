@@ -13,7 +13,7 @@ const HARMONIC_API_URL = "https://api.harmonic.ai/" // Replace with the actual e
 
 export async function GET(request: NextFetchRequestConfig, { params }: { params: { id: string } }) {
   const { id } = params
-  const cacheKey = `harmonic_company_${id}`
+  const cacheKey = `harmonic_person_${id}`
   const cachedData = await getCached(cacheKey)
   if (cachedData) {
     return NextResponse.json(cachedData)
@@ -22,7 +22,7 @@ export async function GET(request: NextFetchRequestConfig, { params }: { params:
 
   
   try {
-    const response = await axios.get(HARMONIC_API_URL + "companies/" + id, {
+    const response = await axios.get(HARMONIC_API_URL + "persons?urns=urn:harmonic:person:" + id, {
       headers: {
         apikey: apikey,
         "Content-Type": "application/json",

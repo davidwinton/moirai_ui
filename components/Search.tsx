@@ -1,12 +1,11 @@
 import axios from "axios"
 import React, { useEffect, useRef, useState } from "react"
 import SearchResult from "components/SearchResult"
-import { TextField } from "components/subframe/components/TextField"
-import { HarmonicResponse } from "types/harmonicResponse"
+import { HarmonicCompanyResponse } from "types/harmonicResponse"
 
 const SearchComponent: React.FC = () => {
   const [query, setQuery] = useState<string>("")
-  const [results, setResults] = useState<HarmonicResponse[]>([])
+  const [results, setResults] = useState<HarmonicCompanyResponse[]>([])
   const [isFocused, setIsFocused] = useState<boolean>(false)
   const timeoutRef = useRef<number | null>(null)
 

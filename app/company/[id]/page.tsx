@@ -13,8 +13,8 @@ import MetricChart from "components/MetricChart"
 import RatingsButton from "components/RatingsButton"
 import { formatDate, formatNumber, formatPercentage, getInvestorRank, toTitleCase } from "lib/utils"
 import { Protocol } from "types/defiLlamaResponse"
-import { HarmonicInvestor, HarmonicResponse } from "types/harmonicResponse"
-
+import { HarmonicInvestor, HarmonicCompanyResponse, HarmonicPersonResponse } from "types/harmonicResponse"
+import { TeamMember } from "components/TeamMember"
 import type { DefiDetails, Investor } from "types/types"
 import { CompanyScore, Ratings } from "types/types"
 
@@ -97,7 +97,7 @@ const getFollowers = (investors: HarmonicInvestor[] | null): Investor[] => {
   )
 }
 
-const calculateCompanyScore = (company: HarmonicResponse) => {
+const calculateCompanyScore = (company: HarmonicCompanyResponse) => {
   if (!company) {
     return null
   }
@@ -155,6 +155,10 @@ const calculateCompanyScore = (company: HarmonicResponse) => {
   }
   return scores
 }
+const extractPersonId = (field: string) => {
+  const match = field.match(/urn:harmonic:person:(\d+)/);
+  return match ? match[1] : null;
+};
 
 async function fetchCompany(id: string) {
   const response = await fetch(`/api/harmonic_company/${id}`)
@@ -164,12 +168,24 @@ async function fetchCompany(id: string) {
     throw new Error("Failed to fetch company")
   }
 
-  return (await response.json()) as HarmonicResponse
+  return (await response.json()) as HarmonicCompanyResponse
+}
+
+async function fetchPerson(id: string) : Promise<HarmonicPersonResponse[]> {
+  const response = await fetch(`/api/harmonic_person/${id}`)
+
+  if (!response.ok) {
+    console.log(response)
+    throw new Error("Failed to fetch person")
+  }
+
+  return response.json() as Promise<HarmonicPersonResponse[]>;
 }
 
 function CompanyDetails() {
-  const [company, setCompany] = useState<HarmonicResponse | null>(null)
+  const [company, setCompany] = useState<HarmonicCompanyResponse | null>(null)
   const [companyScores, setCompanyScores] = useState<CompanyScore | null>(null)
+  const [people, setPeople] = useState<HarmonicPersonResponse[] | null>(null)
   const [defiDetails, setDefiDetails] = useState<DefiDetails | null>(null)
   const [ratings, setRatings] = useState<Ratings | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -186,7 +202,6 @@ function CompanyDetails() {
         try {
           setIsLoading(true)
           const data = await fetchCompany(id)
-          console.log(JSON.stringify(data))
 
           if (data) {
             setCompany(data)
@@ -262,7 +277,7 @@ function CompanyDetails() {
           if (err instanceof Error) {
             console.error(err.message)
           } else {
-            console.error("Something went wrong with DefiLlama integration")
+            console.error("Something went wrong with Ratings integration")
           }
         }
       }
@@ -270,6 +285,37 @@ function CompanyDetails() {
       fetchCompanyData()
     }
   }, [id])
+
+  useEffect(() => {
+    const fetchPeople = async () => {
+      if (company) {
+        const keyPeople = company?.people?.filter(person => {
+          if (!person.is_current_position) return false;
+          const title = person?.title?.toLowerCase();
+          if (!title) return false;
+          
+          return title.includes("founder") || title.startsWith("chief") || title.startsWith("head")
+        })
+
+        if (keyPeople) {
+          try {
+            const responses = await Promise.allSettled(keyPeople.map(person => extractPersonId(person.person_company_urn)).filter(id => !!id)!.map(id => fetchPerson(id || '')));
+            const successfulResults = responses
+              .filter(res => res.status === "fulfilled")
+              .map(res => (res as PromiseFulfilledResult<HarmonicPersonResponse[]>).value[0]);
+    
+            setPeople(successfulResults.filter(person => !!person));
+          } catch (err) {
+            
+          }
+        }
+
+      }
+    }
+    if (company) {
+      fetchPeople()
+    }
+  }, [company])
 
   const scoreIndex = score_list.indexOf(Number(id))
   const overallScore = scoreIndex !== -1 ? 93 - scoreIndex / 2 : ""
@@ -307,11 +353,16 @@ function CompanyDetails() {
     }
   }
 
+  const getTitlePriority= (title: string) => {
+    const lowerTitle = title.toLowerCase();
+    if (lowerTitle.includes("founder")) return 1;
+    if (lowerTitle.startsWith("chief")) return 2;
+    if (lowerTitle.startsWith("head of")) return 3;
+    return 4;
+  };
+
   return (
     <>
-      <Head>
-        <title>{company.name}</title>
-      </Head>
       <div className="flex size-full flex-col items-start gap-4 overflow-auto bg-neutral-50 px-6 py-12">
         <div className="flex w-full min-w-[320px] flex-col items-start gap-6 rounded-md border border-solid border-neutral-border bg-default-background p-6 shadow-sm mobile:w-full mobile:shrink-0 mobile:grow mobile:basis-0">
           <div className="flex w-full items-center justify-between">
@@ -484,6 +535,12 @@ function CompanyDetails() {
               </CustomTreeView>
             ))}
           </div>
+        </div>
+        <span className="font-heading-2 text-heading-2 text-default-font">Team</span>
+        <div className="flex w-full shrink-0 grow basis-0 flex-wrap items-start gap-6">
+            {people?.map((person, index) => (
+              <TeamMember key={index} person={person} companyId={id?.toString() || ''}/>
+            ))}
         </div>
         <span className="font-heading-2 text-heading-2 text-default-font">Growth</span>
         <div className="flex w-full shrink-0 grow basis-0 flex-wrap items-start gap-6">
