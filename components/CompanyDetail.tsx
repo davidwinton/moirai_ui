@@ -7,7 +7,7 @@ import { Badge } from "@/subframe/components/Badge"
 import { VerticalStepper } from "@/subframe/components/VerticalStepper"
 import RatingsButton from "components/RatingsButton"
 import { formatDate, formatNumber, formatPercentage, getInvestorRank, toTitleCase } from "lib/utils"
-import { HarmonicResponse } from "types/harmonicResponse"
+import { HarmonicCompanyResponse } from "types/harmonicResponse"
 import { CompanyScore, DefiDetails, Ratings } from "types/types"
 
 const getBadge = (label: string, score: number | undefined) => {
@@ -44,7 +44,7 @@ const traction_list = [
   1.229000718, 1.223804307, 1.221828471, 1.217149372, 1.216206262, 1.214659937,
 ]
 
-const calculateCompanyScore = (company: HarmonicResponse) => {
+const calculateCompanyScore = (company: HarmonicCompanyResponse) => {
   if (!company) {
     return null
   }
@@ -119,7 +119,7 @@ type DetailsParams = {
 }
 
 const CompanyDetails: React.FC<DetailsParams> = ({ id }) => {
-  const [company, setCompany] = useState<HarmonicResponse | null>(null)
+  const [company, setCompany] = useState<HarmonicCompanyResponse | null>(null)
   const [defiDetails, setDefiDetails] = useState<DefiDetails | null>(null)
   const [companyScores, setCompanyScores] = useState<CompanyScore | null>(null)
   const [ratings, setRatings] = useState<Ratings | null>(null)
@@ -137,7 +137,7 @@ const CompanyDetails: React.FC<DetailsParams> = ({ id }) => {
             throw new Error("Failed to fetch company")
           }
 
-          const data = (await response.json()) as HarmonicResponse
+          const data = (await response.json()) as HarmonicCompanyResponse
           setCompany(data)
           setCompanyScores(calculateCompanyScore(data))
           fetchRatings()

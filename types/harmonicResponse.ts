@@ -57,7 +57,7 @@ export type TractionMetrics = {
   headcount_support: TractionMetric
 }
 
-export interface HarmonicResponse {
+export interface HarmonicCompanyResponse {
   website: {
     url: string
     domain: string
@@ -178,4 +178,81 @@ export interface HarmonicResponse {
     subsidiaries: any[]
     subsidiary_of: string | null
   }
+}
+
+
+export interface HarmonicLocation {
+  address_formatted: string | null;
+  location: string | null;
+  street: string | null;
+  city: string | null;
+  state: string | null;
+  zip: string | null;
+  country: string | null;
+}
+
+export interface HarmonicSocial {
+  url: string;
+  follower_count: number | null;
+  username: string | null;
+  status: string | null;
+}
+
+export interface HarmonicExperience {
+  contact: string | null;
+  title: string;
+  department: string;
+  description: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  is_current_position: boolean;
+  location: string | null;
+  role_type: string;
+  company: string; // e.g., urn:harmonic:company:18656035
+  company_name?: string; // Optional since it's not in unstandardized experience
+}
+
+export interface HarmonicSchool {
+    name: string;
+    linkedin_url: string;
+    logo_url: string | null;
+    entity_urn: string; // e.g., "urn:harmonic:school:c5a11cc6-9285-44d3-99fb-ed2a661bab11"
+  }
+  
+  export interface HarmonicEducation {
+    school: HarmonicSchool;
+    degree: string | null;
+    field: string | null;
+    grade: string | null;
+    start_date: string | null; // ISO date string
+    end_date: string | null;   // ISO date string
+  }
+  
+
+export interface HarmonicPersonResponse {
+  id: number;
+  full_name: string;
+  first_name: string;
+  last_name: string;
+  profile_picture_url: string | null;
+  contact: string | null;
+  location: HarmonicLocation;
+  education: HarmonicEducation[]; 
+  socials: Partial<Record<string, HarmonicSocial>>;
+  experience: HarmonicExperience[];
+  unstandardized_experience__internal: HarmonicExperience[];
+  websites: string[];
+  linkedin_connections: number | null;
+  usurping_person_id: number | null;
+  linkedin_headline: string | null;
+  linkedin_profile_visibility_type: string;
+  last_checked_at: string;
+  entity_urn: string;
+  highlights: any[]; // Structure unknown, adjust if necessary
+  updated_at: string;
+  awards__beta: any[]; // Structure unknown
+  recommendations__beta: any[]; // Structure unknown
+  current_company_urns: string[]; // List of company URNs
+  last_refreshed_at: string;
+  investor_urn: string | null;
 }

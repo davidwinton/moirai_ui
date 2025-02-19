@@ -4,7 +4,7 @@ import Link from "next/link"
 import React, { useEffect, useState } from "react"
 import { Badge } from "@/subframe/components/Badge"
 import { VerticalStepper } from "@/subframe/components/VerticalStepper"
-import { HarmonicResponse } from "types/harmonicResponse"
+import { HarmonicCompanyResponse } from "types/harmonicResponse"
 import { Ratings } from "types/types"
 
 const getRatingBadge = (label: string, score: number | undefined) => {
@@ -25,7 +25,7 @@ const scores = [
 ]
 
 type SearchResultParam = {
-  company: HarmonicResponse
+  company: HarmonicCompanyResponse
 }
 
 const SearchResult: React.FC<SearchResultParam> = ({ company }) => {
