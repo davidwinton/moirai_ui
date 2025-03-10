@@ -1,5 +1,5 @@
 import axios from "axios"
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 
 const DEFI_LLAMA_API_URL = "https://api.llama.fi/updatedProtocol/"
 
@@ -9,14 +9,14 @@ const DEFI_LLAMA_API_URL = "https://api.llama.fi/updatedProtocol/"
  * @returns {Promise<any>} - The API response data.
  */
 
-export async function GET(request: NextFetchRequestConfig, { params }: { params: { id: string } }) {
-  const { id } = await params
+export async function GET(request: NextRequest, 
+  context: { params: { id: string } }) {
+  const id  = context.params.id
   try {
     const response = await axios.get(DEFI_LLAMA_API_URL + id, {
       headers: {
         "Content-Type": "application/json",
       },
-      params,
     })
     return NextResponse.json(response.data)
   } catch (error: any) {

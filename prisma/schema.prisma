@@ -164,3 +164,43 @@ model CompanyRating {
 
   @@map("company_rating")
 }
+
+model HarmonicScore {
+  id Int @id @default(autoincrement())
+  companyId Int @map("company_id")
+  overallScore Float? @map("overall_score")
+  growthScore Float? @map("growth_score")
+  investorScore Float? @map("investor_score")
+  teamScore Float? @map("team_score")
+  fitScore Float? @map("fit_score")
+  qualityScore Float? @map("quality_score")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("harmonic_score")
+}
+
+model HarmonicCompany {
+  name           String?
+  harmonic_id    Int    @id
+  website        String?
+  logo_url       String?
+  crunchbase_url String?
+  pitchbook_url  String?
+  linkedin_url   String?
+  twitter_url    String?
+  affinity_url   String?
+  categories     String[]
+  customer_type  String?
+  description    String?
+  founding_date  DateTime?
+  last_round_date DateTime?
+  total_raise    Float?
+  stage          String?
+  growth_score   Float?
+  team_score     Float?
+  investor_score Float?
+  overall_score  Float?
+
+  @@map("harmonic_companies")
+}

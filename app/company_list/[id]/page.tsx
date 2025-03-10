@@ -1,6 +1,5 @@
-import CompanyDetails from "components/CompanyDetail"
+import CompanyListEntry from "components/CompanyListEntry"
 
-// Define the list page
 const IdListPage: React.FC = () => {
   const recs = [
     56556915, 53938838, 18656035, 43276461, 10195420, 55016033, 47467530, 56362167, 23491747, 7584821, 21776594,
@@ -14,7 +13,7 @@ const IdListPage: React.FC = () => {
       <h1 className="mb-4 text-2xl font-bold">Recommended Companies</h1>
       <div className="flex flex-col">
         {recs.map((id) => (
-          <CompanyDetails key={id} id={id} />
+          <CompanyListEntry key={id} id={id} />
         ))}
       </div>
     </div>

@@ -15,7 +15,7 @@ export default function NavBar({ session }: { session: Session | null }) {
                 <Link href="/company_list/1" className="text-gray-700 hover:underline">
                     Moirai
                 </Link>
-                <Link href="/company_list/1" className="text-gray-700 hover:underline">
+                <Link href="/recommendation" className="text-gray-700 hover:underline">
                     Recommendations
                 </Link>
                 <Link href="/search" className="text-gray-700 hover:underline">

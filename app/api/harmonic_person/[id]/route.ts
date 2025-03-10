@@ -12,7 +12,7 @@ const HARMONIC_API_URL = "https://api.harmonic.ai/" // Replace with the actual e
  */
 
 export async function GET(request: NextFetchRequestConfig, { params }: { params: { id: string } }) {
-  const { id } = params
+  const { id } = await params
   const cacheKey = `harmonic_person_${id}`
   const cachedData = await getCached(cacheKey)
   if (cachedData) {

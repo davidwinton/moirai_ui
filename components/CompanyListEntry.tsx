@@ -115,10 +115,11 @@ const getPercentageSpan = (amount: number | null | undefined) => {
 }
 
 type DetailsParams = {
-  id: number
+  id: number,
+  hideRatedCompanies?: boolean
 }
 
-const CompanyDetails: React.FC<DetailsParams> = ({ id }) => {
+const CompanyListEntry: React.FC<DetailsParams> = ({ id, hideRatedCompanies }) => {
   const [company, setCompany] = useState<HarmonicCompanyResponse | null>(null)
   const [defiDetails, setDefiDetails] = useState<DefiDetails | null>(null)
   const [companyScores, setCompanyScores] = useState<CompanyScore | null>(null)
@@ -223,8 +224,13 @@ const CompanyDetails: React.FC<DetailsParams> = ({ id }) => {
   const scoreIndex = score_list.indexOf(Number(id))
   const overallScore = scoreIndex !== -1 ? 93 - scoreIndex / 2 : ""
 
+  if (hideRatedCompanies && ratings) {
+    return null
+  }
+
   return (
-    <Link href={`/company/${id}`} className="p-2">
+    <div className="flex items-start gap-4">
+
       <div className="flex size-full flex-col items-start overflow-auto">
         <div className="flex w-full min-w-[320px] flex-col items-start gap-6 rounded-md border border-solid border-neutral-border bg-default-background p-6 shadow-sm mobile:w-full mobile:shrink-0 mobile:grow mobile:basis-0">
           <div className="flex w-full items-center justify-between">
@@ -234,7 +240,19 @@ const CompanyDetails: React.FC<DetailsParams> = ({ id }) => {
               </a>
               <span className="font-heading-2 text-heading-2 text-default-font">{company.name}</span>
             </div>
-            <RatingsButton onSubmit={updateRatings} />
+            
+        <Link
+          href={`/company/${id}`}
+          className="group flex items-center justify-center gap-2 p-3 rounded-md border border-solid border-neutral-border bg-default-background shadow-sm hover:bg-primary-50 hover:border-primary-300 transition-all duration-200 ease-in-out"
+        >
+          <span className="font-body font-medium text-body text-default-font group-hover:text-primary-700">Learn More</span>
+          <SubframeCore.Icon
+            name="FeatherArrowRight"
+            className="text-neutral-500 group-hover:text-primary-700 transform group-hover:translate-x-1 transition-all duration-200"
+          />
+        </Link>
+        <RatingsButton onSubmit={updateRatings} />
+
             <div className="flex items-center gap-2">
               {ratings?.quality ? getRatingBadge("Q", ratings?.quality) : null}
               {ratings?.fit ? getRatingBadge("F", ratings?.fit) : null}
@@ -252,21 +270,21 @@ const CompanyDetails: React.FC<DetailsParams> = ({ id }) => {
               ) : (
                 <img className="max-h-[40px] flex-none" src="/images/crunchbase_gray.png" />
               )}
-              {company?.socials["PITCHBOOK"] ? (
+              {company?.socials && company?.socials?.["PITCHBOOK"] ? (
                 <a href={company?.socials["PITCHBOOK"].url} target="_blank" rel="noreferrer">
                   <img className="max-h-[40px] flex-none" src="/images/pitchbook.png" />
                 </a>
               ) : (
                 <img className="max-h-[40px] flex-none" src="/images/pitchbook_gray.png" />
               )}
-              {company?.socials["LINKEDIN"] ? (
+              {company?.socials && company?.socials?.["LINKEDIN"] ? (
                 <a href={company?.socials["LINKEDIN"].url} target="_blank" rel="noreferrer">
                   <img className="max-h-[40px] flex-none" src="/images/linkedin.png" />
                 </a>
               ) : (
                 <img className="max-h-[40px] flex-none" src="/images/linkedin_gray.png" />
               )}
-              {company?.socials["TWITTER"] ? (
+              {company?.socials && company?.socials?.["TWITTER"] ? (
                 <a href={company?.socials["TWITTER"].url} target="_blank" rel="noreferrer">
                   <img className="max-h-[40px] flex-none" src="/images/twitter.png" />
                 </a>
@@ -348,7 +366,7 @@ const CompanyDetails: React.FC<DetailsParams> = ({ id }) => {
               <span className="font-body text-body text-default-font">
                 {formatNumber(
                   (company?.traction_metrics?.web_traffic["30d_ago"]?.value || 0) +
-                    (company?.traction_metrics?.web_traffic["30d_ago"]?.change || 0)
+                  (company?.traction_metrics?.web_traffic["30d_ago"]?.change || 0)
                 )}
               </span>
             </div>
@@ -360,11 +378,15 @@ const CompanyDetails: React.FC<DetailsParams> = ({ id }) => {
               {getPercentageSpan(company?.traction_metrics?.web_traffic["30d_ago"]?.percent_change)}
             </div>
           </div>
+          
           <div className="flex h-px w-full flex-none flex-col items-center gap-2 bg-neutral-200" />
         </div>
       </div>
-    </Link>
+      <div className="flex flex-col gap-3 pt-2">
+        
+      </div>
+    </div>
   )
 }
 
-export default CompanyDetails
+export default CompanyListEntry
