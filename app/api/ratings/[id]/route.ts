@@ -47,8 +47,8 @@ export async function GET(request: NextFetchRequestConfig, { params }: { params:
 }
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params
-  const session = await auth() // ✅ Get session (user info)
+  const { id } = await params
+  const session = await auth() 
 
   if (!session?.user) {
     return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 })
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   }
 
   try {
-    prisma.companyRating.create({
+    await prisma.companyRating.create({
       data: {
         companyId: parseInt(id as string, 10),
         quality: body.quality,
