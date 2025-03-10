@@ -204,3 +204,22 @@ model HarmonicCompany {
 
   @@map("harmonic_companies")
 }
+
+model CompanyList {
+  id Int @id @default(autoincrement())
+  name String
+  description String?
+
+  companyListEntries CompanyListEntry[]
+  @@map("company_list")
+}
+
+model CompanyListEntry {
+  id Int @id @default(autoincrement())
+  companyId Int @map("company_id")
+  companyListId Int @map("company_list_id")
+  companyList CompanyList @relation(fields: [companyListId], references: [id])
+
+  @@index([companyListId])
+  @@map("company_list_entry")
+}
