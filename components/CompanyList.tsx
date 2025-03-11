@@ -25,7 +25,7 @@ const CompanyList = async ({ listId, page, resultsPerPage, hideRatedCompanies }:
     const host = headersList.get('host') || 'localhost:3000'
     const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https'
     const session = await auth()
-
+   
     if (!session?.user) {
         return (
             <div className="p-4 bg-red-50 text-red-700 rounded-md">
@@ -35,8 +35,9 @@ const CompanyList = async ({ listId, page, resultsPerPage, hideRatedCompanies }:
     }
 
     try {
+        const url = `${protocol}://${host}/api/company_list/${listId}?page=${page}&resultsPerPage=${resultsPerPage}`
         const companyList = await fetch(
-            `${protocol}://${host}/api/company_list/${listId}?page=${page}&resultsPerPage=${resultsPerPage}`,
+            url,
             { cache: 'no-store' }
         ).then((res) => res.json()) as CompanyListResponse
 
@@ -44,7 +45,7 @@ const CompanyList = async ({ listId, page, resultsPerPage, hideRatedCompanies }:
             throw new Error('Failed to fetch list')
         }
 
-        return (
+        return (  
             <div className="flex flex-col">
                 {companyList.data.companyIds.length > 0 ? (
                     companyList.data.companyIds.map((id: number) => (
