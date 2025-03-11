@@ -22,7 +22,7 @@ export async function GET(
             companyId: true
           },
           orderBy: {
-            companyId: 'asc'
+            id: 'asc'
           },
           take: resultsPerPage,
           skip: (page - 1) * resultsPerPage
