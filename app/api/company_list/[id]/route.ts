@@ -3,10 +3,10 @@ import prisma from "lib/prisma"
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ listId: string }> }
 ) {
   try {
-    const listId = params.id
+    const { listId } = await params
     const page = parseInt(request.nextUrl.searchParams.get('page') || '1', 10)  
     const resultsPerPage = parseInt(request.nextUrl.searchParams.get('resultsPerPage') || '25', 10)
     const isNumeric = /^\d+$/.test(listId)

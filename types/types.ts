@@ -12,6 +12,7 @@ export type Score = {
   score: number | undefined
   category?: string | undefined
   orderId?: number | undefined
+  provisional?: boolean | undefined
 }
 
 export type CompanyScore = {

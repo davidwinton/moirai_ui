@@ -3,19 +3,22 @@ import { Suspense } from "react"
 import CompanyList from "components/CompanyList"
 import LoadingSpinner from "components/LoadingSpinner"
 import HideRatedToggle from "components/HideRatedToggle"
+import { notFound, useParams } from "next/navigation"
 
 export const dynamic = 'force-dynamic'
 
 const CompanyListPage = async ({ 
+  params,
   searchParams 
 }: { 
-  searchParams: { hideRated?: string, page?: string, resultsPerPage?: string, listId?: string } 
+  params: { id: string },
+  searchParams: { hideRated?: string, page?: string, resultsPerPage?: string } 
 }) => {
-  const params = await searchParams
-  const hideRated = params.hideRated === "true"
-  const page = params.page || "1"
-  const resultsPerPage = params.resultsPerPage || "25"
-  const listId = params.listId || ""
+  
+  const hideRated = searchParams.hideRated === "true"
+  const page = searchParams.page || "1"
+  const resultsPerPage = searchParams.resultsPerPage || "25"
+  const listId = params.id
 
   if (!listId) {
     return <div>List ID is required</div>

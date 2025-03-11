@@ -10,14 +10,14 @@ import { formatDate, formatNumber, formatPercentage, getInvestorRank, toTitleCas
 import { HarmonicCompanyResponse } from "types/harmonicResponse"
 import { CompanyScore, DefiDetails, Ratings } from "types/types"
 
-const getBadge = (label: string, score: number | undefined) => {
+const getBadge = (label: string, score: number | undefined, provisional: boolean | undefined) => {
   if (!score) {
     return <Badge key={"badge-" + label}>{label}</Badge>
   }
 
   const variant = score > 90 ? "success" : score > 80 ? "neutral" : "warning"
 
-  return <Badge variant={variant}>{`${label}: ${score}`}</Badge>
+  return <Badge variant={variant}>{`${label}: ${score}${provisional ? "*" : ""}`}</Badge>
 }
 
 const getRatingBadge = (label: string, score: number | undefined) => {
@@ -81,23 +81,28 @@ const calculateCompanyScore = (company: HarmonicCompanyResponse) => {
     overall: {
       metric: "overall",
       score: Math.floor(scoreIndex !== -1 ? 93 - scoreIndex / 2 : 0),
+      provisional: true,
     },
     team: {
       metric: "team",
       score: Math.floor(teamScore),
+      provisional: true,
     },
 
     growth: {
       metric: "growth",
       score: Math.floor(tractionScore),
+      provisional: true,
     },
     investors: {
       metric: "investor",
       score: Math.floor((highestLead + averageLead) * 10 + (highestFollower + averageFollower) * 2.5),
+      provisional: true,
     },
     mandateFit: {
       metric: "mandate fit",
       score: (isBlockchain ? 70 : 0) + (isFinServ ? 30 : 0),
+      provisional: true,
     },
   }
   return scores
@@ -117,6 +122,35 @@ const getPercentageSpan = (amount: number | null | undefined) => {
 type DetailsParams = {
   id: number,
   hideRatedCompanies?: boolean
+}
+
+
+async function fetchCompanyScore(id: string) {
+  const response = await fetch(`/api/company_score/${id}`)
+
+  if (!response.ok) {
+    console.log(response)
+    console.error("Failed to fetch company score")
+  }
+
+  return (await response.json()) as { success: boolean; data?: {companyId: string, companyScores: CompanyScore}; message?: string }
+}
+
+function reconcileScores(retrievedScores: CompanyScore | undefined, company: HarmonicCompanyResponse) {
+ const provisionalScores = calculateCompanyScore(company)
+
+ //If no scores are retrieved, use the provisional scores
+ if (!retrievedScores) {
+  return provisionalScores
+ }
+ if (!provisionalScores) {
+  return retrievedScores
+ }
+//Fill any missing scores with the provisional scores
+ return {  
+  ...provisionalScores,
+  ...retrievedScores,
+ }
 }
 
 const CompanyListEntry: React.FC<DetailsParams> = ({ id, hideRatedCompanies }) => {
@@ -140,7 +174,9 @@ const CompanyListEntry: React.FC<DetailsParams> = ({ id, hideRatedCompanies }) =
 
           const data = (await response.json()) as HarmonicCompanyResponse
           setCompany(data)
-          setCompanyScores(calculateCompanyScore(data))
+          const retrievedScores = await fetchCompanyScore(id.toString())
+          const finalScores = reconcileScores(retrievedScores.data?.companyScores, data)
+          setCompanyScores(finalScores)
           fetchRatings()
         } catch (err) {
           if (err instanceof Error) {
@@ -258,7 +294,7 @@ const CompanyListEntry: React.FC<DetailsParams> = ({ id, hideRatedCompanies }) =
               {ratings?.fit ? getRatingBadge("F", ratings?.fit) : null}
               {ratings?.investors ? getRatingBadge("I", ratings?.investors) : null}
               {ratings?.team ? getRatingBadge("T", ratings?.team) : null}
-              {!!overallScore && <Badge variant="success">{"" + overallScore}</Badge>}
+              {!!overallScore && <Badge variant="success">{"" + overallScore + (companyScores?.overall?.provisional ? "*" : "")}</Badge>}
               {company.id ? (
                 <a
                   href={"https://console.harmonic.ai/dashboard/company/" + company.id}
@@ -308,11 +344,11 @@ const CompanyListEntry: React.FC<DetailsParams> = ({ id, hideRatedCompanies }) =
             </div>
             <VerticalStepper />
             <div className="float-right flex items-start gap-2 p-1">
-              {getBadge("Overall", companyScores?.overall?.score)}
-              {getBadge("Team", companyScores?.team?.score)}
-              {getBadge("Investors", companyScores?.investors?.score)}
-              {getBadge("Growth", companyScores?.growth?.score)}
-              {getBadge("Fit", companyScores?.mandateFit?.score)}
+              {getBadge("Overall", companyScores?.overall?.score, companyScores?.overall?.provisional)}
+              {getBadge("Team", companyScores?.team?.score, companyScores?.team?.provisional)}
+              {getBadge("Investors", companyScores?.investors?.score, companyScores?.investors?.provisional)}
+              {getBadge("Growth", companyScores?.growth?.score, companyScores?.growth?.provisional)}
+              {getBadge("Fit", companyScores?.mandateFit?.score, companyScores?.mandateFit?.provisional)}
             </div>
           </div>
           <div className="flex h-px w-full flex-none flex-col items-center gap-2 bg-neutral-200" />
